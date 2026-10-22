@@ -15,7 +15,7 @@ import {
   type TripEntry,
   type TripPatch,
 } from '../lib/trip';
-import { setSharing, shareUrl, type TripApi } from '../lib/tripStore';
+import { canDeleteTrip, setSharing, shareUrl, type TripApi } from '../lib/tripStore';
 import { Icon } from './Icon';
 import type { Notify } from './TripView';
 import { Confirm, copyText, Modal } from './ui';
@@ -77,7 +77,7 @@ export function TripInfoSheet({ trip, onSave, onRemove, onClose }: { trip: Trip;
           {onRemove ? (
             <button type="button" className="btn btn-ghost danger-text" onClick={() => setConfirm(true)}>
               <Icon name="trash" size={18} />
-              {trip.is_owner ? '여행 삭제' : '내 목록에서 빼기'}
+              {canDeleteTrip(trip) ? '여행 삭제' : '내 목록에서 빼기'}
             </button>
           ) : null}
           <span className="spacer" />
@@ -125,9 +125,7 @@ export function TripInfoSheet({ trip, onSave, onRemove, onClose }: { trip: Trip;
       </form>
       {confirm && onRemove ? (
         <Confirm
-          title={trip.is_owner ? '여행 삭제' : '내 목록에서 빼기'}
-          message={trip.is_owner ? '이 여행과 공유 링크가 모든 멤버에게서 사라집니다. 잠시 뒤 실행 취소할 수 있습니다.' : '내 여행 목록에서만 빠집니다. 링크로 다시 들어오면 다시 보입니다.'}
-          confirmLabel={trip.is_owner ? '삭제' : '빼기'}
+          {...removeCopy(trip)}
           danger
           onConfirm={onRemove}
           onClose={() => setConfirm(false)}
@@ -135,6 +133,13 @@ export function TripInfoSheet({ trip, onSave, onRemove, onClose }: { trip: Trip;
       ) : null}
     </Modal>
   );
+}
+
+/** 삭제 확인 문구 — 만든 사람은 모두에게서 삭제, 그 밖에는 내 목록에서만 빼기 */
+export function removeCopy(trip: Trip) {
+  return canDeleteTrip(trip)
+    ? { title: '여행 삭제', message: `'${trip.title || '여행'}'과 공유 링크가 함께 쓰는 모든 사람에게서 사라집니다. 삭제 직후 실행 취소할 수 있습니다.`, confirmLabel: '삭제' }
+    : { title: '내 목록에서 빼기', message: '이 기기의 내 여행 목록에서만 빠집니다. 다른 사람에게는 그대로 남고, 링크로 다시 들어오면 다시 보입니다.', confirmLabel: '빼기' };
 }
 
 /* ================================================================== 공유 */
@@ -389,6 +394,9 @@ export function NewTripSheet({
     // 일정 일수에 맞춰 도착일 추정
     const maxDay = plans.reduce((m, e) => Math.max(m, e.day ?? 0), 0);
     if (next.start_date && !next.end_date && maxDay > 1) next.end_date = addDays(next.start_date, maxDay - 1);
+    // 텍스트만 붙여넣었으면 첫 줄(보통 상품명)을 제목으로
+    const firstLine = text.split('\n').map((l) => l.trim()).find(Boolean) ?? '';
+    if (!next.title && firstLine && firstLine.length <= 60 && !/^(\d+\s*일\s*차|DAY\s*\d)/i.test(firstLine)) next.title = cleanTitle(firstLine);
     if (!next.title) next.title = next.destination ? `${next.destination} 여행` : '';
 
     const linkEntries = urls.map((u, i) => {

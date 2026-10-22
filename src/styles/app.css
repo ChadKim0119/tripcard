@@ -2781,6 +2781,29 @@ textarea:focus {
   }
 }
 
+/* 여행 카드 삭제 버튼 — 표지 오른쪽 위 (카드 버튼 안에 버튼을 넣지 않도록 형제로 둔다) */
+.trip-card-wrap {
+  position: relative;
+}
+.trip-card-remove {
+  position: absolute;
+  top: var(--ms-space-2);
+  right: var(--ms-space-2);
+  display: grid;
+  place-items: center;
+  width: var(--ms-size-touch);
+  height: var(--ms-size-touch);
+  border-radius: var(--ms-radius-control);
+  background: var(--ma-cover-btn);
+  color: var(--ms-color-text-inverse);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+.trip-card-remove:hover {
+  background: var(--ms-color-status-error-bg);
+  color: var(--ms-color-status-error);
+}
+
 /* ------------------------------------------------------------ Mobile (iPhone) */
 @media (max-width: 759px) {
   .only-mobile {

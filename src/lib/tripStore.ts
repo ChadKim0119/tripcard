@@ -60,6 +60,14 @@ export function useTrip(token: string) {
       return;
     }
     if (!data) {
+      // 삭제됐거나 공유가 꺼졌다 → 이 기기에 남은 사본도 지운다
+      setTrip(null);
+      setEntries([]);
+      try {
+        localStorage.removeItem(CACHE_KEY(token));
+      } catch {
+        /* ignore */
+      }
       setSync('missing');
       return;
     }
@@ -80,6 +88,11 @@ export function useTrip(token: string) {
       .on('broadcast', { event: 'remove' }, ({ payload }) => {
         const ids = new Set((payload as { ids?: string[] }).ids ?? []);
         setEntries((prev) => prev.filter((e) => !ids.has(e.id)));
+      })
+      .on('broadcast', { event: 'deleted' }, () => {
+        // 만든 사람이 여행을 지웠다 → 이 화면도 '찾을 수 없음'으로
+        setTrip(null);
+        setSync('missing');
       })
       .on('broadcast', { event: 'trip' }, ({ payload }) => {
         // 공유 설정(share_enabled 등)은 소유자 화면에서만 바뀌므로 is_owner 는 내 값을 유지한다
@@ -198,6 +211,27 @@ export function forgetTrip(token: string) {
   saveTokens(localTokens().filter((t) => t !== token));
 }
 
+/** 이 기기에서 만든 여행의 삭제 키 — 로그인 없이 만든 여행도 만든 사람은 지울 수 있다 */
+const DELETE_KEYS = 'tc.trips.keys';
+function deleteKeys(): Record<string, string> {
+  try {
+    return JSON.parse(localStorage.getItem(DELETE_KEYS) ?? '{}') as Record<string, string>;
+  } catch {
+    return {};
+  }
+}
+function saveDeleteKey(token: string, key: string) {
+  try {
+    localStorage.setItem(DELETE_KEYS, JSON.stringify({ ...deleteKeys(), [token]: key }));
+  } catch {
+    /* ignore */
+  }
+}
+/** 모두에게서 지울 수 있는지 (로그인한 소유자 또는 이 기기에서 만든 여행) */
+export function canDeleteTrip(trip: Pick<Trip, 'share_token' | 'is_owner'>): boolean {
+  return !!trip.is_owner || !!deleteKeys()[trip.share_token];
+}
+
 export function useTrips(userId: string | null) {
   const cacheKey = `tc.trips.${userId ?? 'guest'}`;
   const [trips, setTrips] = useState<Trip[]>(() => {
@@ -245,8 +279,9 @@ export function useTrips(userId: string | null) {
     async (info: TripPatch, entries: TripEntry[]): Promise<Trip> => {
       const { data, error } = await supabase.rpc('trip_create', { p_trip: info });
       if (error || !data) throw new Error(error?.message ?? '여행을 만들지 못했습니다');
-      const row = data as Trip;
+      const { delete_key, ...row } = data as Trip & { delete_key?: string };
       rememberTrip(row.share_token);
+      if (delete_key) saveDeleteKey(row.share_token, delete_key);
       for (let i = 0; i < entries.length; i += 300) {
         const chunk = entries.slice(i, i + 300).map(({ trip_id: _t, created_at: _c, updated_at: _u, ...rest }) => rest);
         const r = await supabase.rpc('trip_entries_upsert', { p_token: row.share_token, p_entries: chunk });
@@ -258,13 +293,17 @@ export function useTrips(userId: string | null) {
     [refresh],
   );
 
-  /** 소유자(로그인): 여행 삭제(복구 가능). 그 밖에는 이 목록에서만 빼기 — 링크를 가진 다른 사람에게는 그대로 남는다. */
+  /**
+   * 만든 사람(로그인 소유자 또는 만든 기기): 여행 삭제 — 링크를 가진 모두에게서 사라진다(실행 취소 가능).
+   * 그 밖에는 내 목록에서만 빼기 — 링크를 가진 다른 사람에게는 그대로 남는다.
+   */
   const removeTrip = useCallback(
     async (trip: Trip) => {
       setTrips((prev) => prev.filter((t) => t.id !== trip.id));
       forgetTrip(trip.share_token);
-      const { error } = trip.is_owner
-        ? await supabase.from('trips').update({ deleted_at: new Date().toISOString() }).eq('id', trip.id)
+      const key = deleteKeys()[trip.share_token] ?? null;
+      const { error } = canDeleteTrip(trip)
+        ? await supabase.rpc('trip_remove', { p_token: trip.share_token, p_key: key }).then((r) => ({ error: r.error ?? (r.data ? null : new Error('삭제 권한이 없습니다')) }))
         : userId
           ? await supabase.from('trip_members').delete().eq('trip_id', trip.id).eq('user_id', userId)
           : { error: null };
@@ -279,8 +318,8 @@ export function useTrips(userId: string | null) {
   const restoreTrip = useCallback(
     async (trip: Trip) => {
       rememberTrip(trip.share_token);
-      if (trip.is_owner) {
-        const { error } = await supabase.from('trips').update({ deleted_at: null }).eq('id', trip.id);
+      if (canDeleteTrip(trip)) {
+        const { error } = await supabase.rpc('trip_restore', { p_token: trip.share_token, p_key: deleteKeys()[trip.share_token] ?? null });
         if (error) throw new Error(error.message);
       }
       await refresh();

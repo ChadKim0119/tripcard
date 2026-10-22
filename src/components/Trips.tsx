@@ -2,10 +2,11 @@ import { useEffect, useMemo, useState } from 'react';
 import { findUrl } from '../lib/detect';
 import { coverFromMap } from '../lib/covers';
 import { dDay, formatRange, tripPhase, type Trip } from '../lib/trip';
-import { getMemberName, joinTrip, rememberTrip, setMemberName, useTrip, type TripsApi } from '../lib/tripStore';
+import { canDeleteTrip, getMemberName, joinTrip, rememberTrip, setMemberName, useTrip, type TripsApi } from '../lib/tripStore';
 import { Icon } from './Icon';
-import { NewTripSheet } from './TripSheets';
+import { NewTripSheet, removeCopy } from './TripSheets';
 import { TripView, type Notify } from './TripView';
+import { Confirm } from './ui';
 
 /** 체크·기록에 남길 이름. 로그인했으면 처음엔 이메일 앞부분, 바꾸면 기기에 기억한다. */
 export function useMemberName(fallback: string): [string, (n: string) => void] {
@@ -45,6 +46,7 @@ export function TripsHome({
   overlayPaused: boolean;
 }) {
   const [creating, setCreating] = useState<{ seedUrl?: string } | null>(null);
+  const [removing, setRemoving] = useState<Trip | null>(null);
 
   // 여행 목록에서 링크를 붙여넣으면 바로 새 여행 만들기
   useEffect(() => {
@@ -62,10 +64,11 @@ export function TripsHome({
   }, [openToken, creating, overlayPaused]);
 
   const remove = (trip: Trip) => {
+    const deleting = canDeleteTrip(trip);
     onOpen(null);
     api.removeTrip(trip).then(
       () =>
-        notify(trip.is_owner ? '여행을 삭제했습니다' : '목록에서 뺐습니다', 'info', trip.is_owner ? { label: '실행 취소', run: () => void api.restoreTrip(trip) } : undefined),
+        notify(deleting ? '여행을 삭제했습니다' : '목록에서 뺐습니다', 'info', { label: '실행 취소', run: () => void api.restoreTrip(trip) }),
       () => notify('삭제하지 못했습니다', 'error'),
     );
   };
@@ -133,8 +136,8 @@ export function TripsHome({
           )
         ) : (
           <>
-            {upcoming.length ? <TripSection title="다가오는 여행" trips={upcoming} onOpen={onOpen} loggedIn={loggedIn} /> : null}
-            {past.length ? <TripSection title="다녀온 여행" trips={past} onOpen={onOpen} loggedIn={loggedIn} /> : null}
+            {upcoming.length ? <TripSection title="다가오는 여행" trips={upcoming} onOpen={onOpen} onRemove={setRemoving} loggedIn={loggedIn} /> : null}
+            {past.length ? <TripSection title="다녀온 여행" trips={past} onOpen={onOpen} onRemove={setRemoving} loggedIn={loggedIn} /> : null}
           </>
         )}
       </section>
@@ -142,6 +145,8 @@ export function TripsHome({
       <button type="button" className="fab only-mobile" aria-label="새 여행" onClick={() => setCreating({})}>
         <Icon name="plus" size={24} />
       </button>
+
+      {removing ? <Confirm {...removeCopy(removing)} danger onConfirm={() => remove(removing)} onClose={() => setRemoving(null)} /> : null}
 
       {creating ? (
         <NewTripSheet
@@ -162,14 +167,35 @@ export function TripsHome({
   );
 }
 
-function TripSection({ title, trips, onOpen, loggedIn }: { title: string; trips: Trip[]; onOpen: (token: string) => void; loggedIn: boolean }) {
+function TripSection({
+  title,
+  trips,
+  onOpen,
+  onRemove,
+  loggedIn,
+}: {
+  title: string;
+  trips: Trip[];
+  onOpen: (token: string) => void;
+  onRemove: (trip: Trip) => void;
+  loggedIn: boolean;
+}) {
   return (
     <section className="trip-section">
       <h2 className="trip-section-title">{title}</h2>
       <ul className="trip-grid">
         {trips.map((t) => (
-          <li key={t.id}>
+          <li key={t.id} className="trip-card-wrap">
             <TripCard trip={t} onOpen={() => onOpen(t.share_token)} loggedIn={loggedIn} />
+            <button
+              type="button"
+              className="trip-card-remove"
+              aria-label={`${t.title || '여행'} ${canDeleteTrip(t) ? '삭제' : '목록에서 빼기'}`}
+              title={canDeleteTrip(t) ? '삭제' : '목록에서 빼기'}
+              onClick={() => onRemove(t)}
+            >
+              <Icon name="trash" size={18} />
+            </button>
           </li>
         ))}
       </ul>

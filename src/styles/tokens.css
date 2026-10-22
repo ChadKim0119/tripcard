@@ -61,6 +61,8 @@
   --ma-trip-overlay: linear-gradient(180deg, rgb(22 54 93 / 45%) 0%, rgb(22 54 93 / 20%) 28%, rgb(22 54 93 / 70%) 55%, rgb(22 54 93 / 94%) 100%);
   --ma-trip-text-shadow: 0 1px 8px rgb(22 54 93 / 60%);
   --ma-hero-btn: rgb(255 255 255 / 18%);
+  /* 카드 표지 위 작은 버튼: 밝은 사진에서도 보이도록 navy 반투명 */
+  --ma-cover-btn: rgb(22 54 93 / 62%);
   --ma-hero-btn-hover: rgb(255 255 255 / 30%);
 
   /* --- 앱 레이아웃 치수 (MapStone metrics 재사용) --- */
