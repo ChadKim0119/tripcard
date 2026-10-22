@@ -164,12 +164,45 @@ export function useTrip(token: string) {
 
 export type TripApi = ReturnType<typeof useTrip>;
 
-/* ------------------------------------------------------------------ 내 여행 목록 (로그인 사용자) */
+/* ------------------------------------------------------------------ 내 여행 목록 */
 
-export function useTrips(userId: string) {
+/**
+ * 로그인 없이 쓰는 기기에서는 이 기기가 만들거나 연 여행의 공유 토큰을 기억해 목록을 만든다.
+ * 로그인하면 서버의 내 여행(만든 것 + 참여한 것)과 이 기기의 목록을 합쳐 보여 준다.
+ */
+const LOCAL_TOKENS = 'tc.trips.tokens';
+
+export function localTokens(): string[] {
+  try {
+    const v = JSON.parse(localStorage.getItem(LOCAL_TOKENS) ?? '[]');
+    return Array.isArray(v) ? v.filter((x) => typeof x === 'string') : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveTokens(list: string[]) {
+  try {
+    localStorage.setItem(LOCAL_TOKENS, JSON.stringify(list.slice(0, 100)));
+  } catch {
+    /* ignore */
+  }
+}
+
+export function rememberTrip(token: string) {
+  const list = localTokens();
+  if (!list.includes(token)) saveTokens([token, ...list]);
+}
+
+export function forgetTrip(token: string) {
+  saveTokens(localTokens().filter((t) => t !== token));
+}
+
+export function useTrips(userId: string | null) {
+  const cacheKey = `tc.trips.${userId ?? 'guest'}`;
   const [trips, setTrips] = useState<Trip[]>(() => {
     try {
-      return JSON.parse(localStorage.getItem(`ma.trips.${userId}`) ?? '[]') as Trip[];
+      return JSON.parse(localStorage.getItem(cacheKey) ?? '[]') as Trip[];
     } catch {
       return [];
     }
@@ -177,20 +210,26 @@ export function useTrips(userId: string) {
   const [sync, setSync] = useState<SyncState>('loading');
 
   const refresh = useCallback(async () => {
-    const { data, error } = await supabase.rpc('my_trips');
-    if (error) {
+    const tokens = localTokens();
+    const [mine, local] = await Promise.all([
+      userId ? supabase.rpc('my_trips') : Promise.resolve({ data: [], error: null }),
+      tokens.length ? supabase.rpc('trips_by_tokens', { p_tokens: tokens }) : Promise.resolve({ data: [], error: null }),
+    ]);
+    if (mine.error || local.error) {
       setSync(navigator.onLine ? 'error' : 'offline');
       return;
     }
-    const list = (data as Trip[]) ?? [];
+    const byId = new Map<string, Trip>();
+    for (const t of [...((local.data as Trip[]) ?? []), ...((mine.data as Trip[]) ?? [])]) byId.set(t.id, t);
+    const list = [...byId.values()].sort((a, b) => (b.start_date ?? '9999').localeCompare(a.start_date ?? '9999') || b.created_at.localeCompare(a.created_at));
     setTrips(list);
     setSync('synced');
     try {
-      localStorage.setItem(`ma.trips.${userId}`, JSON.stringify(list));
+      localStorage.setItem(cacheKey, JSON.stringify(list));
     } catch {
       /* ignore */
     }
-  }, [userId]);
+  }, [userId, cacheKey]);
 
   useEffect(() => {
     void refresh();
@@ -201,16 +240,13 @@ export function useTrips(userId: string) {
     return () => document.removeEventListener('visibilitychange', onFocus);
   }, [refresh]);
 
-  /** 여행 카드 만들기 — 기본 정보는 trips 에, 일정·체크리스트는 공유 RPC 로 한 번에 넣는다. */
+  /** 여행 카드 만들기 — 로그인 없이도 된다. 일정·체크리스트는 공유 RPC 로 한 번에 넣는다. */
   const create = useCallback(
     async (info: TripPatch, entries: TripEntry[]): Promise<Trip> => {
-      const { data, error } = await supabase
-        .from('trips')
-        .insert({ ...info, start_date: info.start_date || null, end_date: info.end_date || null })
-        .select()
-        .single();
+      const { data, error } = await supabase.rpc('trip_create', { p_trip: info });
       if (error || !data) throw new Error(error?.message ?? '여행을 만들지 못했습니다');
-      const row = { ...(data as Trip), is_owner: true };
+      const row = data as Trip;
+      rememberTrip(row.share_token);
       for (let i = 0; i < entries.length; i += 300) {
         const chunk = entries.slice(i, i + 300).map(({ trip_id: _t, created_at: _c, updated_at: _u, ...rest }) => rest);
         const r = await supabase.rpc('trip_entries_upsert', { p_token: row.share_token, p_entries: chunk });
@@ -222,13 +258,16 @@ export function useTrips(userId: string) {
     [refresh],
   );
 
-  /** 소유자: 휴지통으로(복구 가능), 참여자: 내 목록에서 빼기 */
+  /** 소유자(로그인): 여행 삭제(복구 가능). 그 밖에는 이 목록에서만 빼기 — 링크를 가진 다른 사람에게는 그대로 남는다. */
   const removeTrip = useCallback(
     async (trip: Trip) => {
       setTrips((prev) => prev.filter((t) => t.id !== trip.id));
+      forgetTrip(trip.share_token);
       const { error } = trip.is_owner
         ? await supabase.from('trips').update({ deleted_at: new Date().toISOString() }).eq('id', trip.id)
-        : await supabase.from('trip_members').delete().eq('trip_id', trip.id).eq('user_id', userId);
+        : userId
+          ? await supabase.from('trip_members').delete().eq('trip_id', trip.id).eq('user_id', userId)
+          : { error: null };
       if (error) {
         void refresh();
         throw new Error(error.message);
@@ -239,8 +278,11 @@ export function useTrips(userId: string) {
 
   const restoreTrip = useCallback(
     async (trip: Trip) => {
-      const { error } = await supabase.from('trips').update({ deleted_at: null }).eq('id', trip.id);
-      if (error) throw new Error(error.message);
+      rememberTrip(trip.share_token);
+      if (trip.is_owner) {
+        const { error } = await supabase.from('trips').update({ deleted_at: null }).eq('id', trip.id);
+        if (error) throw new Error(error.message);
+      }
       await refresh();
     },
     [refresh],

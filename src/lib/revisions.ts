@@ -25,6 +25,18 @@ export interface Revision {
 
 export const REVISIONS: Revision[] = [
   {
+    version: '1.1.0',
+    date: '2026-10-22',
+    agents: ['claude-code'],
+    title: '로그인 없이 바로 쓰기',
+    changes: [
+      '로그인 없이 여행 카드를 만들고 공유 링크로 함께 수정',
+      '내가 만들거나 링크로 연 여행은 이 기기의 내 여행 목록에 자동 저장',
+      '로그인은 선택 — 하면 여러 기기에서 목록이 이어지고 공유 끄기·새 링크 가능',
+      '링크로 처음 들어오면 체크·기록에 표시할 이름을 한 번 물어봄',
+    ],
+  },
+  {
     version: '1.0.0',
     date: '2026-10-22',
     agents: ['claude-code'],

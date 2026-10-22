@@ -67,6 +67,7 @@ export function AuthScreen() {
     <div className="auth">
       <div className="auth-card">
         <Brand />
+        <a className="link-btn" href="/">← 로그인 없이 계속 쓰기</a>
         {mode === 'reset' ? (
           <div className="field">
             <h1 className="auth-title">비밀번호 재설정</h1>

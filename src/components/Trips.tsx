@@ -1,14 +1,12 @@
-import { useEffect, useMemo, useState, type ReactNode } from 'react';
-import type { Session } from '@supabase/supabase-js';
+import { useEffect, useMemo, useState } from 'react';
 import { findUrl } from '../lib/detect';
 import { dDay, formatRange, tripPhase, type Trip } from '../lib/trip';
-import { getMemberName, joinTrip, setMemberName, useTrip, type TripsApi } from '../lib/tripStore';
+import { getMemberName, joinTrip, rememberTrip, setMemberName, useTrip, type TripsApi } from '../lib/tripStore';
 import { Icon } from './Icon';
 import { NewTripSheet } from './TripSheets';
 import { TripView, type Notify } from './TripView';
-import { Toasts, useToasts } from './ui';
 
-/** 체크·기록에 남길 이름. 처음엔 로그인 이메일 앞부분, 바꾸면 기기에 기억한다. */
+/** 체크·기록에 남길 이름. 로그인했으면 처음엔 이메일 앞부분, 바꾸면 기기에 기억한다. */
 export function useMemberName(fallback: string): [string, (n: string) => void] {
   const [name, setName] = useState(() => getMemberName() || fallback);
   return [
@@ -20,11 +18,12 @@ export function useMemberName(fallback: string): [string, (n: string) => void] {
   ];
 }
 
-/* ================================================================== 목록 (로그인) */
+/* ================================================================== 목록 */
 
 export function TripsHome({
   api,
   ai,
+  loggedIn,
   me,
   setMe,
   notify,
@@ -35,6 +34,7 @@ export function TripsHome({
 }: {
   api: TripsApi;
   ai: boolean;
+  loggedIn: boolean;
   me: string;
   setMe: (n: string) => void;
   notify: Notify;
@@ -75,6 +75,7 @@ export function TripsHome({
       <TripDetail
         key={openToken}
         token={openToken}
+        loggedIn={loggedIn}
         me={me}
         setMe={setMe}
         notify={notify}
@@ -123,7 +124,7 @@ export function TripsHome({
                 <Icon name="journal" size={24} />
               </div>
               <p className="empty-title">첫 여행 카드를 만들어 보세요</p>
-              <p className="muted-text">여행사 일정·상품 링크를 붙여넣으면 일정·체크리스트·자료가 담긴 여행 카드가 만들어지고, 링크 하나로 다른 가족과 함께 채울 수 있습니다.</p>
+              <p className="muted-text">여행사 일정·상품 링크를 붙여넣으면 일정·체크리스트·자료가 담긴 여행 카드가 만들어지고, 링크 하나로 다른 가족과 함께 채울 수 있습니다. 로그인은 필요 없습니다.</p>
               <button type="button" className="btn btn-primary" onClick={() => setCreating({})}>
                 <Icon name="plus" size={18} />새 여행 만들기
               </button>
@@ -131,8 +132,8 @@ export function TripsHome({
           )
         ) : (
           <>
-            {upcoming.length ? <TripSection title="다가오는 여행" trips={upcoming} onOpen={onOpen} /> : null}
-            {past.length ? <TripSection title="다녀온 여행" trips={past} onOpen={onOpen} /> : null}
+            {upcoming.length ? <TripSection title="다가오는 여행" trips={upcoming} onOpen={onOpen} loggedIn={loggedIn} /> : null}
+            {past.length ? <TripSection title="다녀온 여행" trips={past} onOpen={onOpen} loggedIn={loggedIn} /> : null}
           </>
         )}
       </section>
@@ -160,14 +161,14 @@ export function TripsHome({
   );
 }
 
-function TripSection({ title, trips, onOpen }: { title: string; trips: Trip[]; onOpen: (token: string) => void }) {
+function TripSection({ title, trips, onOpen, loggedIn }: { title: string; trips: Trip[]; onOpen: (token: string) => void; loggedIn: boolean }) {
   return (
     <section className="trip-section">
       <h2 className="trip-section-title">{title}</h2>
       <ul className="trip-grid">
         {trips.map((t) => (
           <li key={t.id}>
-            <TripCard trip={t} onOpen={() => onOpen(t.share_token)} />
+            <TripCard trip={t} onOpen={() => onOpen(t.share_token)} loggedIn={loggedIn} />
           </li>
         ))}
       </ul>
@@ -175,7 +176,7 @@ function TripSection({ title, trips, onOpen }: { title: string; trips: Trip[]; o
   );
 }
 
-function TripCard({ trip, onOpen }: { trip: Trip; onOpen: () => void }) {
+function TripCard({ trip, onOpen, loggedIn }: { trip: Trip; onOpen: () => void; loggedIn: boolean }) {
   const total = trip.check_total ?? 0;
   const done = trip.check_done ?? 0;
   const phase = tripPhase(trip);
@@ -189,7 +190,7 @@ function TripCard({ trip, onOpen }: { trip: Trip; onOpen: () => void }) {
         <span className="card-title">{trip.title || trip.destination || '새 여행'}</span>
         <span className="card-meta">
           {[trip.destination, formatRange(trip)].filter(Boolean).join(' · ')}
-          {!trip.is_owner ? <span className="badge badge-info">참여</span> : null}
+          {loggedIn && !trip.is_owner ? <span className="badge badge-info">참여</span> : null}
         </span>
         {total ? (
           <span className="trip-progress small" aria-label={`준비 ${done}/${total}`}>
@@ -210,77 +211,47 @@ function TripCard({ trip, onOpen }: { trip: Trip; onOpen: () => void }) {
   );
 }
 
-/* ================================================================== 상세 (로그인) */
+/* ================================================================== 상세 */
 
 function TripDetail({
   token,
+  loggedIn,
   me,
   setMe,
   notify,
   onBack,
   onRemove,
-  headerStart,
 }: {
   token: string;
+  loggedIn: boolean;
   me: string;
   setMe: (n: string) => void;
   notify: Notify;
   onBack: () => void;
   onRemove?: () => void;
-  headerStart?: ReactNode;
 }) {
   const api = useTrip(token);
+  const [askName, setAskName] = useState(!me);
+  // 링크로 연 여행은 이 기기의 '내 여행'에 남는다. 로그인했으면 계정에도 참여로 기록한다.
   useEffect(() => {
-    void joinTrip(token);
-  }, [token]);
+    if (!api.trip) return;
+    rememberTrip(token);
+    if (loggedIn) void joinTrip(token);
+  }, [api.trip, token, loggedIn]);
   useEffect(() => {
     window.scrollTo({ top: 0 });
   }, []);
-  return <TripView api={api} me={me} setMe={setMe} canUnfurl notify={notify} onBack={onBack} onRemoveTrip={onRemove} headerStart={headerStart} />;
-}
-
-/* ================================================================== 공유 링크 (로그인 없이) */
-
-export function TripShared({ token, session }: { token: string; session: Session | null }) {
-  const api = useTrip(token);
-  const { toasts, show, dismiss } = useToasts();
-  const [me, setMe] = useMemberName('');
-  const [askName, setAskName] = useState(!me);
-  const notify: Notify = (text, kind, action) => show(text, { kind, action });
-
   useEffect(() => {
-    if (session) void joinTrip(token);
-  }, [session, token]);
-  useEffect(() => {
-    if (api.trip) document.title = `${api.trip.title || '여행'} · 트립카드`;
+    document.title = api.trip ? `${api.trip.title || '여행'} · 트립카드` : '트립카드';
+    return () => {
+      document.title = '트립카드';
+    };
   }, [api.trip]);
-
   const members = useMemo(() => api.trip?.members ?? [], [api.trip]);
 
   return (
-    <div className="shared-shell">
-      <header className="shared-bar">
-        <a className="brand" href="/">
-          <img src="/icon.svg" alt="" width={26} height={26} />
-          <span>트립카드</span>
-        </a>
-        <span className="spacer" />
-        {me ? (
-          <button type="button" className="chip-btn" onClick={() => setAskName(true)} aria-label={`내 이름 ${me}, 바꾸기`}>
-            <Icon name="users" size={16} />
-            {me}
-          </button>
-        ) : null}
-        {!session ? (
-          <a className="btn btn-sm" href={`/t/${token}?login=1`}>
-            로그인
-          </a>
-        ) : null}
-      </header>
-      <main className="shared-main">
-        <TripView api={api} me={me} setMe={setMe} canUnfurl={!!session} notify={notify} />
-      </main>
-
+    <>
+      <TripView api={api} me={me} setMe={setMe} canUnfurl notify={notify} onBack={onBack} onRemoveTrip={onRemove} />
       {askName && api.trip ? (
         <div className="name-card" role="dialog" aria-label="이름 입력">
           <form
@@ -294,7 +265,7 @@ export function TripShared({ token, session }: { token: string; session: Session
             <p className="clip-head">
               <strong>누가 함께 쓰나요?</strong>
             </p>
-            <p className="muted-text">체크하고 기록을 남길 때 이름이 함께 표시됩니다.</p>
+            <p className="muted-text">체크하고 기록을 남길 때 이름이 함께 표시됩니다. 로그인은 필요 없습니다.</p>
             {members.length ? (
               <div className="prompt-chips">
                 {members.map((m) => (
@@ -324,8 +295,6 @@ export function TripShared({ token, session }: { token: string; session: Session
           </form>
         </div>
       ) : null}
-
-      <Toasts toasts={toasts} dismiss={dismiss} />
-    </div>
+    </>
   );
 }

@@ -1,5 +1,5 @@
 // 링크 메타데이터 추출 (og:title / og:description / og:image / site_name + 본문 일부).
-// 로그인한 사용자만 호출할 수 있다 (verify_jwt). 내부망 주소는 거부한다.
+// 트립카드는 로그인 없이 쓰므로 공개 호출(verify_jwt 끔)이다. 내부망 주소는 거부하고, 앞부분 400KB 만 읽는다.
 // full: true 면 본문을 줄 구조째 20,000자까지 돌려준다 (여행사 일정표 읽기용).
 
 const CORS = {
