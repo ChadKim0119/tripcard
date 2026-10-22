@@ -7,6 +7,14 @@ export interface Unfurled {
   image?: string;
   site_name?: string;
   text?: string;
+  /** 일정을 API 로 따로 불러오는 여행사(모두투어 등)는 서버가 일차별 일정까지 읽어 준다 */
+  itinerary?: {
+    title: string;
+    start_date: string;
+    end_date: string;
+    summary: string;
+    days: { day: number; items: { time: string; title: string; note: string }[] }[];
+  };
 }
 
 /** 링크 메타데이터(제목·설명·썸네일). 브라우저는 CORS 때문에 직접 못 읽어서 Edge Function 이 대신 가져온다. */

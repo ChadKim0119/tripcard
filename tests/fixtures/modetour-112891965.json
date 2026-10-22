@@ -1,0 +1,497 @@
+{
+ "info": {
+  "result": {
+   "pName": "[즉시할인][좌석확보 출발확정][설국온천][노보리베츠숙박] 도야/북해도 4일 (지다이무라/도야유람선/3대게뷔페)",
+   "date": {
+    "sdate": "2026-12-27",
+    "edate": "2026-12-30",
+    "night": 3,
+    "days": 4
+   },
+   "transport": {
+    "name": "에어프레미아",
+    "startNumber": "YP751"
+   },
+   "price": {
+    "adult": 1549000
+   }
+  }
+ },
+ "schedule": {
+  "result": {
+   "scheduleItemList": [
+    {
+     "ortherActions": [
+      {
+       "itiSeq": 1,
+       "itiServiceName": "유의 ㅣ 안내사항",
+       "itiPlaceName": "한국-일본 여행 입국시 관련 안내 - 삿포로",
+       "placeNameK": "한국-일본 여행 입국시 관련 안내 - 삿포로",
+       "itiSummaryDes": ""
+      },
+      {
+       "itiSeq": 2,
+       "itiServiceName": "기타단문",
+       "itiPlaceName": null,
+       "placeNameK": null,
+       "itiSummaryDes": "\r현지 사정에 따라 투숙 지역 순서는 변경 되어 확정될 수 있으며, 그에 맞춰 방문 일정 순서도 조정될 수 있습니다. 확정 일정은 홈페이지나 예약처를 통해 출발일 전 확인하실 수 있어요."
+      },
+      {
+       "itiSeq": 3,
+       "itiServiceName": "기타단문",
+       "itiPlaceName": null,
+       "placeNameK": null,
+       "itiSummaryDes": "\r대게 특식이나 호텔석식을 제외한 현지식은 현지 예약상황에 따라 메뉴가 변경될 수 있어요."
+      },
+      {
+       "itiSeq": 4,
+       "itiServiceName": "기타단문",
+       "itiPlaceName": null,
+       "placeNameK": null,
+       "itiSummaryDes": ""
+      },
+      {
+       "itiSeq": 5,
+       "itiServiceName": "기타단문",
+       "itiPlaceName": null,
+       "placeNameK": null,
+       "itiSummaryDes": ""
+      },
+      {
+       "itiSeq": 6,
+       "itiServiceName": "기타단문",
+       "itiPlaceName": null,
+       "placeNameK": null,
+       "itiSummaryDes": ""
+      },
+      {
+       "itiSeq": 7,
+       "itiServiceName": "관광(콘텐츠)",
+       "itiPlaceName": "지옥계곡(동계)",
+       "placeNameK": "지옥계곡(동계)",
+       "itiSummaryDes": ""
+      },
+      {
+       "itiSeq": 8,
+       "itiServiceName": "관광(콘텐츠)",
+       "itiPlaceName": "지다이무라(동계)",
+       "placeNameK": "지다이무라(동계)",
+       "itiSummaryDes": ""
+      },
+      {
+       "itiSeq": 9,
+       "itiServiceName": "기타단문",
+       "itiPlaceName": null,
+       "placeNameK": null,
+       "itiSummaryDes": ""
+      },
+      {
+       "itiSeq": 10,
+       "itiServiceName": "기타단문",
+       "itiPlaceName": null,
+       "placeNameK": null,
+       "itiSummaryDes": "\r호텔에 비치된 유카타로 갈아 입으시고 자연에 둘러싸인 온천거리를 산책해보세요!"
+      }
+     ],
+     "listLocalPlace": [],
+     "allPlaceTravelToday": [],
+     "listGuidePlace": [],
+     "listHotelPlace": [
+      {
+       "itiSeq": 11,
+       "itiServiceName": "숙박(콘텐츠)",
+       "itiPlaceName": "노보리베츠 석수정 호텔 (4성급 ★★★★)",
+       "placeNameK": "노보리베츠 석수정 호텔 (4성급 ★★★★)",
+       "itiSummaryDes": ""
+      },
+      {
+       "itiSeq": 12,
+       "itiServiceName": "숙박(콘텐츠)",
+       "itiPlaceName": "노보리베츠 만세각 호텔 (4성급 ★★★★)",
+       "placeNameK": "노보리베츠 만세각 호텔 (4성급 ★★★★)",
+       "itiSummaryDes": ""
+      },
+      {
+       "itiSeq": 13,
+       "itiServiceName": "숙박(콘텐츠)",
+       "itiPlaceName": "도야 선팔레스 리조트&스파(4성급 ★★★★)",
+       "placeNameK": "도야 선팔레스 리조트&스파(4성급 ★★★★)",
+       "itiSummaryDes": ""
+      },
+      {
+       "itiSeq": 14,
+       "itiServiceName": "숙박(콘텐츠)",
+       "itiPlaceName": "도야 만세각 온천♨호텔 (4성급 ★★★★)",
+       "placeNameK": "도야 만세각 온천♨호텔 (4성급 ★★★★)",
+       "itiSummaryDes": ""
+      }
+     ],
+     "listMealPlace": [
+      {
+       "itiSeq": 15,
+       "itiServiceName": "중식",
+       "itiPlaceName": null,
+       "placeNameK": null,
+       "itiSummaryDes": "현지식(소바+덴푸라 정식)"
+      },
+      {
+       "itiSeq": 16,
+       "itiServiceName": "석식",
+       "itiPlaceName": null,
+       "placeNameK": null,
+       "itiSummaryDes": "호텔식(뷔페식+주류뮤제한)"
+      }
+     ],
+     "listAirRouteInfo": {
+      "item": [
+       {
+        "departureCityName": "인천",
+        "departureTime": "09:40",
+        "arrivalCityName": null,
+        "arrivalTime": null,
+        "departureFlight": null,
+        "departureFlightDuration": null,
+        "transportName": null
+       },
+       {
+        "departureCityName": null,
+        "departureTime": null,
+        "arrivalCityName": "삿포로",
+        "arrivalTime": "12:20",
+        "departureFlight": "YP751",
+        "departureFlightDuration": "02:40",
+        "transportName": "에어프레미아"
+       }
+      ]
+     }
+    },
+    {
+     "ortherActions": [
+      {
+       "itiSeq": 1,
+       "itiServiceName": "기타단문",
+       "itiPlaceName": null,
+       "placeNameK": null,
+       "itiSummaryDes": ""
+      },
+      {
+       "itiSeq": 2,
+       "itiServiceName": "이동정보 안내",
+       "itiPlaceName": null,
+       "placeNameK": null,
+       "itiSummaryDes": "북해도 최대의 칼데라 호수의 고장, 도야로 이동"
+      },
+      {
+       "itiSeq": 3,
+       "itiServiceName": "관광(콘텐츠)",
+       "itiPlaceName": "도야호수 유람선 탑승(동계)",
+       "placeNameK": "도야호수 유람선 탑승(동계)",
+       "itiSummaryDes": ""
+      },
+      {
+       "itiSeq": 4,
+       "itiServiceName": "관광(콘텐츠)",
+       "itiPlaceName": "쇼와신잔(동계)",
+       "placeNameK": "쇼와신잔(동계)",
+       "itiSummaryDes": ""
+      },
+      {
+       "itiSeq": 5,
+       "itiServiceName": "관광(콘텐츠)",
+       "itiPlaceName": "사이로 전망대(동계)",
+       "placeNameK": "사이로 전망대(동계)",
+       "itiSummaryDes": "※유제품이 발달한 북해도에서 꼭 먹어봐야 하는 \"마시는 요구르트\" 1인 1개 제공"
+      },
+      {
+       "itiSeq": 6,
+       "itiServiceName": "이동정보 안내",
+       "itiPlaceName": null,
+       "placeNameK": null,
+       "itiSummaryDes": "새하얀 눈으로 뒤덮힌 모습이 장관인 죠잔케이 온천마을 이동"
+      },
+      {
+       "itiSeq": 7,
+       "itiServiceName": "이동정보 안내",
+       "itiPlaceName": null,
+       "placeNameK": null,
+       "itiSummaryDes": "호텔로 이동 체크인 후 석식  "
+      },
+      {
+       "itiSeq": 8,
+       "itiServiceName": "기타단문",
+       "itiPlaceName": null,
+       "placeNameK": null,
+       "itiSummaryDes": "\r호텔에 비치된 유카타로 갈아입고 온천장으로 항해보세요."
+      }
+     ],
+     "listLocalPlace": [],
+     "allPlaceTravelToday": [],
+     "listGuidePlace": [],
+     "listHotelPlace": [
+      {
+       "itiSeq": 9,
+       "itiServiceName": "숙박(콘텐츠)",
+       "itiPlaceName": "죠잔케이뷰 호텔(4성급★★★★)",
+       "placeNameK": "죠잔케이뷰 호텔(4성급★★★★)",
+       "itiSummaryDes": ""
+      },
+      {
+       "itiSeq": 10,
+       "itiServiceName": "숙박(콘텐츠)",
+       "itiPlaceName": "죠잔케이 시카노유 호텔(4성급 ★★★★)",
+       "placeNameK": "죠잔케이 시카노유 호텔(4성급 ★★★★)",
+       "itiSummaryDes": ""
+      },
+      {
+       "itiSeq": 11,
+       "itiServiceName": "숙박(콘텐츠)",
+       "itiPlaceName": "죠잔케이 만세각 밀리오네(4성급★★★★)",
+       "placeNameK": "죠잔케이 만세각 밀리오네(4성급★★★★)",
+       "itiSummaryDes": ""
+      }
+     ],
+     "listMealPlace": [
+      {
+       "itiSeq": 12,
+       "itiServiceName": "조식",
+       "itiPlaceName": null,
+       "placeNameK": null,
+       "itiSummaryDes": "호텔식"
+      },
+      {
+       "itiSeq": 13,
+       "itiServiceName": "중식",
+       "itiPlaceName": null,
+       "placeNameK": null,
+       "itiSummaryDes": "현지식(닭고기 우동야채찜) \n\r현지사정에따라 메뉴는 동일예산에서 변경될 수 있습니다. "
+      },
+      {
+       "itiSeq": 14,
+       "itiServiceName": "석식",
+       "itiPlaceName": null,
+       "placeNameK": null,
+       "itiSummaryDes": "호텔식(뷔페식)"
+      }
+     ],
+     "listAirRouteInfo": {
+      "item": []
+     }
+    },
+    {
+     "ortherActions": [
+      {
+       "itiSeq": 1,
+       "itiServiceName": "기타단문",
+       "itiPlaceName": null,
+       "placeNameK": null,
+       "itiSummaryDes": ""
+      },
+      {
+       "itiSeq": 2,
+       "itiServiceName": "기타단문",
+       "itiPlaceName": null,
+       "placeNameK": null,
+       "itiSummaryDes": ""
+      },
+      {
+       "itiSeq": 3,
+       "itiServiceName": "관광(콘텐츠)",
+       "itiPlaceName": "오타루운하(동계)",
+       "placeNameK": "오타루운하(동계)",
+       "itiSummaryDes": ""
+      },
+      {
+       "itiSeq": 4,
+       "itiServiceName": "관광(콘텐츠)",
+       "itiPlaceName": "오타루 오르골당",
+       "placeNameK": "오타루 오르골당",
+       "itiSummaryDes": ""
+      },
+      {
+       "itiSeq": 5,
+       "itiServiceName": "관광(콘텐츠)",
+       "itiPlaceName": "과자거리와 유리공방(동계)",
+       "placeNameK": "과자거리와 유리공방(동계)",
+       "itiSummaryDes": ""
+      },
+      {
+       "itiSeq": 6,
+       "itiServiceName": "기타단문",
+       "itiPlaceName": null,
+       "placeNameK": null,
+       "itiSummaryDes": ""
+      },
+      {
+       "itiSeq": 7,
+       "itiServiceName": "관광(콘텐츠)",
+       "itiPlaceName": "삿포로 맥주 박물관(동계)",
+       "placeNameK": "삿포로 맥주 박물관(동계)",
+       "itiSummaryDes": ""
+      },
+      {
+       "itiSeq": 8,
+       "itiServiceName": "관광(차창)",
+       "itiPlaceName": "삿포로 (구)도청사(동계)",
+       "placeNameK": "삿포로 (구)도청사(동계)",
+       "itiSummaryDes": "삿포로의 붉은 벽돌 랜드마크, ‘아카렌가’ 구 북해도 도청사\n\r차창관광으로 진행됩니다. "
+      },
+      {
+       "itiSeq": 9,
+       "itiServiceName": "관광(콘텐츠)",
+       "itiPlaceName": "오도리 공원(동계)",
+       "placeNameK": "오도리 공원(동계)",
+       "itiSummaryDes": "(11.20~3.14) 오도리공원과 삿포로역 일대에서 겨울밤을 수놓는 화이트 일루미네이션을 만나보세요."
+      },
+      {
+       "itiSeq": 10,
+       "itiServiceName": "이동정보 안내",
+       "itiPlaceName": null,
+       "placeNameK": null,
+       "itiSummaryDes": "석식 후 호텔로 이동 및 휴식"
+      }
+     ],
+     "listLocalPlace": [],
+     "allPlaceTravelToday": [],
+     "listGuidePlace": [],
+     "listHotelPlace": [
+      {
+       "itiSeq": 11,
+       "itiServiceName": "숙박(콘텐츠)",
+       "itiPlaceName": "삿포로 뉴오타니인 호텔(4성급 ★★★★)",
+       "placeNameK": "삿포로 뉴오타니인 호텔(4성급 ★★★★)",
+       "itiSummaryDes": ""
+      },
+      {
+       "itiSeq": 12,
+       "itiServiceName": "숙박(콘텐츠)",
+       "itiPlaceName": "삿포로뷰 호텔 오도리공원(4성급 ★★★★)",
+       "placeNameK": "삿포로뷰 호텔 오도리공원(4성급 ★★★★)",
+       "itiSummaryDes": ""
+      },
+      {
+       "itiSeq": 13,
+       "itiServiceName": "숙박(콘텐츠)",
+       "itiPlaceName": "삿포로 잘시티 호텔 (4성급 ★★★★)",
+       "placeNameK": "삿포로 잘시티 호텔 (4성급 ★★★★)",
+       "itiSummaryDes": ""
+      },
+      {
+       "itiSeq": 14,
+       "itiServiceName": "숙박(콘텐츠)",
+       "itiPlaceName": "마이스테이즈 프리미어 삿포로파크 호텔(구 아트호텔) (4성급 ★★★★)",
+       "placeNameK": "마이스테이즈 프리미어 삿포로파크 호텔(구 아트호텔) (4성급 ★★★★)",
+       "itiSummaryDes": ""
+      }
+     ],
+     "listMealPlace": [
+      {
+       "itiSeq": 15,
+       "itiServiceName": "조식",
+       "itiPlaceName": null,
+       "placeNameK": null,
+       "itiSummaryDes": "호텔식"
+      },
+      {
+       "itiSeq": 16,
+       "itiServiceName": "중식",
+       "itiPlaceName": null,
+       "placeNameK": null,
+       "itiSummaryDes": "현지식(스시+우동 정식)\n\r현지사정에따라 메뉴는 동일예산에서 변경될 수 있습니다. "
+      },
+      {
+       "itiSeq": 17,
+       "itiServiceName": "석식",
+       "itiPlaceName": null,
+       "placeNameK": null,
+       "itiSummaryDes": "무제한 3대게 특식+술과음료포함 "
+      }
+     ],
+     "listAirRouteInfo": {
+      "item": []
+     }
+    },
+    {
+     "ortherActions": [
+      {
+       "itiSeq": 1,
+       "itiServiceName": "기타단문",
+       "itiPlaceName": null,
+       "placeNameK": null,
+       "itiSummaryDes": ""
+      },
+      {
+       "itiSeq": 2,
+       "itiServiceName": "관광(조망)",
+       "itiPlaceName": "삿포로 시계탑(차창관광)",
+       "placeNameK": "삿포로 시계탑(차창관광)",
+       "itiSummaryDes": "북해도 개척의 상징, 삿포로 시계탑 차창관광"
+      },
+      {
+       "itiSeq": 4,
+       "itiServiceName": "기타단문",
+       "itiPlaceName": null,
+       "placeNameK": null,
+       "itiSummaryDes": ""
+      },
+      {
+       "itiSeq": 5,
+       "itiServiceName": "기타단문",
+       "itiPlaceName": null,
+       "placeNameK": null,
+       "itiSummaryDes": ""
+      },
+      {
+       "itiSeq": 6,
+       "itiServiceName": "기타단문",
+       "itiPlaceName": null,
+       "placeNameK": null,
+       "itiSummaryDes": ""
+      },
+      {
+       "itiSeq": 7,
+       "itiServiceName": "기타단문",
+       "itiPlaceName": null,
+       "placeNameK": null,
+       "itiSummaryDes": ""
+      }
+     ],
+     "listLocalPlace": [],
+     "allPlaceTravelToday": [],
+     "listGuidePlace": [],
+     "listHotelPlace": [],
+     "listMealPlace": [
+      {
+       "itiSeq": 3,
+       "itiServiceName": "조식",
+       "itiPlaceName": null,
+       "placeNameK": null,
+       "itiSummaryDes": "호텔식"
+      }
+     ],
+     "listAirRouteInfo": {
+      "item": [
+       {
+        "departureCityName": "삿포로",
+        "departureTime": "13:45",
+        "arrivalCityName": null,
+        "arrivalTime": null,
+        "departureFlight": null,
+        "departureFlightDuration": null,
+        "transportName": null
+       },
+       {
+        "departureCityName": null,
+        "departureTime": null,
+        "arrivalCityName": "인천",
+        "arrivalTime": "17:15",
+        "departureFlight": "YP752",
+        "departureFlightDuration": "03:30",
+        "transportName": "에어프레미아"
+       }
+      ]
+     }
+    }
+   ]
+  }
+ }
+}

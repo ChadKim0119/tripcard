@@ -256,13 +256,14 @@ interface Loaded {
   plans: TripEntry[];
   links: TripEntry[];
   packing: string[];
-  via: 'ai' | 'rules' | 'none';
+  via: 'site' | 'ai' | 'rules' | 'none';
 }
 
 const EMPTY: Draft = { title: '', destination: '', start_date: null, end_date: null, membersText: '', summary: '', cover: null, source_url: null };
 
 function cleanTitle(t: string) {
   return t
+    .replace(/^(\s*\[[^\]]*\])+\s*/, '') // [즉시할인][출발확정] 같은 머리 태그
     .replace(/\s*[|\-–:]\s*(하나투어|모두투어|노랑풍선|참좋은여행|인터파크|NOL|롯데관광|교원투어|여행이지|온라인투어|마이리얼트립|클룩|Klook|KKday|트립닷컴|Trip\.com|아고다|에어비앤비|yanolja|야놀자)\b.*$/i, '')
     .trim()
     .slice(0, 120);
@@ -329,7 +330,22 @@ export function NewTripSheet({
     let packing: string[] = [];
     let via: Loaded['via'] = 'none';
 
-    if (ai && all.length > 150) {
+    // 여행사 상품 일정을 서버가 이미 구조로 읽어 왔으면 그대로 쓴다 (가장 정확)
+    const site = metas.find((m) => m.itinerary?.days.length)?.itinerary;
+    if (site) {
+      next = {
+        ...next,
+        title: cleanTitle(site.title) || next.title,
+        destination: guessDestination(site.title) || next.destination,
+        start_date: site.start_date || null,
+        end_date: site.end_date || null,
+        summary: [site.summary, next.summary === site.title ? '' : next.summary].filter(Boolean).join('\n').slice(0, 400),
+      };
+      plans = site.days.flatMap((d) => d.items.map((it) => newEntry('plan', { day: d.day, time: it.time, title: it.title, body: it.note, author: me })));
+      via = 'site';
+    }
+
+    if (!plans.length && ai && all.length > 150) {
       setBusy('AI 가 일정을 정리하는 중…');
       try {
         const r = await aiTrip({ url: urls[0], title: first?.title, text: all });
@@ -487,7 +503,7 @@ export function NewTripSheet({
             <strong>
               일정 {byDay.length}일 · {loaded.plans.length}개 항목
             </strong>
-            {loaded.via === 'ai' ? ' · AI 정리' : loaded.via === 'rules' ? ' · 자동 인식' : ''}
+            {loaded.via === 'site' ? ' · 여행사 일정 그대로' : loaded.via === 'ai' ? ' · AI 정리' : loaded.via === 'rules' ? ' · 자동 인식' : ''}
             {draft.start_date ? ` · ${formatRange(draft)}` : ''}
           </p>
           {loaded.plans.length ? (

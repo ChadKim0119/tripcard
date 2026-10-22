@@ -25,6 +25,18 @@ export interface Revision {
 
 export const REVISIONS: Revision[] = [
   {
+    version: '1.2.0',
+    date: '2026-10-22',
+    agents: ['claude-code'],
+    title: '모두투어 상품 링크에서 일정 그대로 가져오기',
+    changes: [
+      '모두투어 패키지 링크를 넣으면 출발·도착일, 항공편, 일차별 관광지·식사·숙박을 여행사 일정 그대로 가져옴',
+      '상품명 앞의 [즉시할인] 같은 태그는 여행 이름에서 뺌',
+      '제목 자리에 상품코드만 있는 여행사 페이지는 상품명을 제목으로 사용',
+      '북해도·오타루·노보리베츠 등 목적지 인식 추가',
+    ],
+  },
+  {
     version: '1.1.0',
     date: '2026-10-22',
     agents: ['claude-code'],
