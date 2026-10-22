@@ -246,3 +246,29 @@ export function SyncDot({ state }: { state: string }) {
     </span>
   );
 }
+
+/**
+ * 표지 사진 — 여행사 이미지 서버는 출처(referrer)가 없으면 거부하기도 해서 기본 정책으로 불러오고,
+ * 그래도 실패하면 여행지 대표 사진(fallback)으로, 그것도 없으면 감춘다.
+ */
+export function CoverImg({ src, fallback, className, lazy }: { src: string; fallback?: string | null; className?: string; lazy?: boolean }) {
+  const [cur, setCur] = useState(src);
+  const [dead, setDead] = useState(false);
+  useEffect(() => {
+    setCur(src);
+    setDead(false);
+  }, [src]);
+  if (dead) return null;
+  return (
+    <img
+      className={className}
+      src={cur}
+      alt=""
+      loading={lazy ? 'lazy' : undefined}
+      onError={() => {
+        if (fallback && cur !== fallback) setCur(fallback);
+        else setDead(true);
+      }}
+    />
+  );
+}

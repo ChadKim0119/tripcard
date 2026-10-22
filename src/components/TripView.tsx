@@ -25,7 +25,7 @@ import {
 import type { TripApi } from '../lib/tripStore';
 import { Icon, type IconName } from './Icon';
 import { TripInfoSheet, TripShareSheet } from './TripSheets';
-import { Confirm, Modal, Segmented, SyncDot } from './ui';
+import { Confirm, CoverImg, Modal, Segmented, SyncDot } from './ui';
 
 type Tab = 'plan' | 'check' | 'note' | 'link';
 const TABS: { value: Tab; label: string; icon: IconName }[] = [
@@ -88,7 +88,7 @@ export function TripView({ api, me, setMe, canUnfurl, notify, onBack, onRemoveTr
   return (
     <div className="trip">
       <header className={`trip-hero${cover ? ' has-cover' : ''}`}>
-        {cover ? <img className="trip-hero-img" src={cover} alt="" referrerPolicy="no-referrer" onError={(e) => (e.currentTarget.style.display = 'none')} /> : null}
+        {cover ? <CoverImg className="trip-hero-img" src={cover} fallback={coverFromMap(trip.destination)} /> : null}
         <div className="trip-hero-bar">
           {headerStart}
           {onBack ? (
@@ -218,7 +218,8 @@ function PlanTab({ trip, entries, onEdit, me }: { trip: NonNullable<TripApi['tri
       m.set(k, [...(m.get(k) ?? []), p]);
     }
     // 같은 날 안에서는 시간 → 입력 순
-    for (const list of m.values()) list.sort((a, b) => (a.time && b.time ? a.time.localeCompare(b.time) : 0) || a.sort - b.sort);
+    // 입력 순서 그대로 — 시간대가 바뀌는 비행(16:00 인천 출발 → 10:40 샌프란시스코 도착) 때문에 시각순 정렬은 틀린다
+    for (const list of m.values()) list.sort((a, b) => a.sort - b.sort);
     return m;
   }, [plans]);
   const add = (day: number | null) => onEdit(newEntry('plan', { day, author: me }));
@@ -540,7 +541,7 @@ function LinkTab({
             <li key={l.id} className="link-card">
               <a href={l.url ?? '#'} target="_blank" rel="noopener noreferrer" className="link-card-main">
                 <span className="link-thumb">
-                  {l.thumbnail ? <img src={l.thumbnail} alt="" loading="lazy" referrerPolicy="no-referrer" /> : <Icon name={l.group_name === '유튜브' ? 'video' : 'link'} size={24} />}
+                  {l.thumbnail ? <CoverImg src={l.thumbnail} lazy /> : <Icon name={l.group_name === '유튜브' ? 'video' : 'link'} size={24} />}
                 </span>
                 <span className="link-meta">
                   <span className={`phase-badge${l.group_name === '여행사' ? ' ph-source' : ''}`}>{l.group_name || '웹'}</span>

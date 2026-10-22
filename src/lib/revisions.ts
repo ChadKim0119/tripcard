@@ -25,6 +25,17 @@ export interface Revision {
 
 export const REVISIONS: Revision[] = [
   {
+    version: '1.4.1',
+    date: '2026-10-22',
+    agents: ['claude-code'],
+    title: '여행사 일정 표시 다듬기',
+    changes: [
+      '여행사 상품 사진이 안 뜨던 문제 수정 (노랑풍선 등), 그래도 실패하면 여행지 대표 사진으로',
+      '일정은 여행사 순서 그대로 — 시차가 있는 비행에서 도착이 출발보다 먼저 보이던 문제 수정',
+      '미팅·안내·하루 경로 줄에는 유튜브·블로그·지도 검색 버튼을 숨김',
+    ],
+  },
+  {
     version: '1.4.0',
     date: '2026-10-22',
     agents: ['claude-code'],

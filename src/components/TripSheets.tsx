@@ -517,7 +517,7 @@ export function NewTripSheet({
       <div className="form">
         {draft.cover ? (
           <div className="new-trip-cover">
-            <img src={draft.cover} alt="" referrerPolicy="no-referrer" onError={() => set({ cover: null })} />
+            <img src={draft.cover} alt="" onError={() => set({ cover: null })} />
             <button type="button" className="chip-btn" onClick={() => set({ cover: null })}>
               사진 빼기
             </button>

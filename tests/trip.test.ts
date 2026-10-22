@@ -86,6 +86,9 @@ describe('trip helpers', () => {
     expect(placeQuery({ title: '오사카성 관광' }, '오사카')).toBe('오사카성');
     expect(placeQuery({ title: '기요미즈데라' }, '교토')).toBe('교토 기요미즈데라');
     expect(placeQuery({ title: '식사' }, '북해도')).toBe('');
+    expect(placeQuery({ title: '인천 - 샌프란시스코' }, '미국')).toBe('');
+    expect(placeQuery({ title: '미팅 장소 :' }, '미국')).toBe('');
+    expect(placeQuery({ title: '금문교 (Golden Gate Bridge)' }, '미국')).toBe('미국 금문교');
     expect(placeQuery({ title: '인천 출발 → 삿포로' }, '북해도')).toBe('');
     expect(placeQuery({ title: '북해도 최대의 칼데라 호수의 고장, 도야로 이동' }, '북해도')).toBe('');
     expect(placeQuery({ title: '숙박: 노보리베츠 석수정 호텔 (4성급 ★★★★) 외 3곳 중 확정' }, '북해도')).toBe('북해도 노보리베츠 석수정 호텔');

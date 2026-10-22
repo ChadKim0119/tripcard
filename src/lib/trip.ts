@@ -458,6 +458,8 @@ export function placeQuery(entry: Pick<TripEntry, 'title'>, destination: string)
   const t = entry.title.trim();
   if (/^(식사|숙박|조식|중식|석식)$/.test(t) || /출발\s*→/.test(t) || /(조식|중식|석식)\s*후|투숙|휴식/.test(t)) return '';
   if (t.length > 14 && /(이동|휴식|체크인|자유\s*시간)/.test(t)) return '';
+  // 미팅·안내·수속 같은 공지, "인천 - 샌프란시스코" 같은 하루 경로 줄은 장소가 아니다
+  if (/미팅|안내|수속|집결|가이드|:\s*$/.test(t) || /\S\s+[-–→]\s+\S/.test(t)) return '';
   const core = t
     .replace(/^숙박\s*[:：]\s*/, '')
     .replace(/\s*외\s*\d+곳.*$/, '')

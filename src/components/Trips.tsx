@@ -6,7 +6,7 @@ import { canDeleteTrip, getMemberName, joinTrip, rememberTrip, setMemberName, us
 import { Icon } from './Icon';
 import { NewTripSheet, removeCopy } from './TripSheets';
 import { TripView, type Notify } from './TripView';
-import { Confirm } from './ui';
+import { Confirm, CoverImg } from './ui';
 
 /** 체크·기록에 남길 이름. 로그인했으면 처음엔 이메일 앞부분, 바꾸면 기기에 기억한다. */
 export function useMemberName(fallback: string): [string, (n: string) => void] {
@@ -211,7 +211,8 @@ function TripCard({ trip, onOpen, loggedIn }: { trip: Trip; onOpen: () => void; 
   return (
     <button type="button" className="card trip-card" onClick={onOpen}>
       <span className="trip-card-cover">
-        {cover ? <img src={cover} alt="" loading="lazy" referrerPolicy="no-referrer" /> : <Icon name="plane" size={24} />}
+        {cover ? <CoverImg src={cover} fallback={coverFromMap(trip.destination)} lazy /> : null}
+        {!cover ? <Icon name="plane" size={24} /> : null}
         <span className={`trip-dday ph-${phase}`}>{dDay(trip)}</span>
       </span>
       <span className="card-body">
