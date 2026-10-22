@@ -2081,11 +2081,13 @@ textarea:focus {
   content: '';
   position: absolute;
   inset: 0;
+  z-index: 1; /* 사진(img) 위에 그라데이션 */
   background: var(--ma-trip-overlay);
 }
 .trip-hero-bar,
 .trip-hero-body {
   position: relative;
+  z-index: 2;
 }
 .trip-hero.has-cover .trip-hero-body h1,
 .trip-hero.has-cover .trip-hero-meta,
