@@ -25,6 +25,17 @@ export interface Revision {
 
 export const REVISIONS: Revision[] = [
   {
+    version: '1.2.1',
+    date: '2026-10-22',
+    agents: ['claude-code'],
+    title: '여행사 일정 화면 다듬기',
+    changes: [
+      '식사·항공·이동 안내 줄에는 유튜브·블로그·지도 검색 버튼을 숨기고, 숙박은 호텔 이름으로 검색',
+      '여행사 공통 홍보 배너는 표지 사진으로 쓰지 않음',
+      '상품명 머리 태그를 뺀 뒤 목적지를 찾아 더 정확하게 인식 (예: 북해도)',
+    ],
+  },
+  {
     version: '1.2.0',
     date: '2026-10-22',
     agents: ['claude-code'],

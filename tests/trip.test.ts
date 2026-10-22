@@ -85,6 +85,10 @@ describe('trip helpers', () => {
     expect(links.some((l) => l.query.includes('11월 날씨'))).toBe(true);
     expect(placeQuery({ title: '오사카성 관광' }, '오사카')).toBe('오사카성');
     expect(placeQuery({ title: '기요미즈데라' }, '교토')).toBe('교토 기요미즈데라');
+    expect(placeQuery({ title: '식사' }, '북해도')).toBe('');
+    expect(placeQuery({ title: '인천 출발 → 삿포로' }, '북해도')).toBe('');
+    expect(placeQuery({ title: '북해도 최대의 칼데라 호수의 고장, 도야로 이동' }, '북해도')).toBe('');
+    expect(placeQuery({ title: '숙박: 노보리베츠 석수정 호텔 (4성급 ★★★★) 외 3곳 중 확정' }, '북해도')).toBe('북해도 노보리베츠 석수정 호텔');
     expect(placeQuery({ title: '호텔 조식 후 교토로 이동' }, '오사카')).toBe('오사카 호텔 조식 후 교토');
   });
   it('자료 분류', () => {

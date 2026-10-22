@@ -336,7 +336,9 @@ export function NewTripSheet({
       next = {
         ...next,
         title: cleanTitle(site.title) || next.title,
-        destination: guessDestination(site.title) || next.destination,
+        destination: guessDestination(cleanTitle(site.title)) || next.destination,
+        // 여행사 공통 홍보 배너(og:image)는 상품 표지가 아니다
+        cover: next.cover && /messenger_img|\/talk\//.test(next.cover) ? null : next.cover,
         start_date: site.start_date || null,
         end_date: site.end_date || null,
         summary: [site.summary, next.summary === site.title ? '' : next.summary].filter(Boolean).join('\n').slice(0, 400),

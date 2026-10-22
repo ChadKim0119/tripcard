@@ -184,6 +184,7 @@ export function TripView({ api, me, setMe, canUnfurl, notify, onBack, onRemoveTr
 /* ================================================================== 일정 */
 
 function ResearchChips({ query }: { query: string }) {
+  if (!query) return null;
   const kinds: [ResearchKind, IconName][] = [
     ['youtube', 'video'],
     ['blog', 'journal'],

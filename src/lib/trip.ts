@@ -339,9 +339,17 @@ export function researchLinks(trip: Pick<Trip, 'destination' | 'title' | 'start_
   return list.map(([kind, label, query]) => ({ kind, label, query, url: searchUrl(kind, query) }));
 }
 
-/** 일정 한 줄에서 검색어로 쓸 장소 이름 — 이동·식사 같은 군말을 덜어낸다 */
+/**
+ * 일정 한 줄에서 검색어로 쓸 장소 이름 — 이동·식사 같은 군말을 덜어낸다.
+ * 장소가 아닌 줄(식사, 항공 구간, '○○로 이동' 같은 안내문)은 빈 문자열 → 검색 버튼을 감춘다.
+ */
 export function placeQuery(entry: Pick<TripEntry, 'title'>, destination: string): string {
-  const core = entry.title
+  const t = entry.title.trim();
+  if (/^(식사|조식|중식|석식)$/.test(t) || /출발\s*→/.test(t)) return '';
+  if (t.length > 14 && /(이동|휴식|체크인|자유\s*시간)/.test(t)) return '';
+  const core = t
+    .replace(/^숙박\s*[:：]\s*/, '')
+    .replace(/\s*외\s*\d+곳.*$/, '')
     .replace(/\(.*?\)|\[.*?\]/g, ' ')
     .replace(/(?:으로|로)?\s*(?:이동|출발|도착|관광|투어|방문|체크인|체크아웃|자유\s*시간|자유\s*일정)(?:[\s,·].*)?$/, '')
     .replace(/\s+/g, ' ')
