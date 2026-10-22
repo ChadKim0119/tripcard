@@ -51,3 +51,32 @@ export async function aiTrip(input: { url?: string; title?: string; text: string
   if (error || !data || data.error) throw new Error(data?.error ?? 'AI 요청에 실패했습니다');
   return data;
 }
+
+export interface Rendered {
+  url: string;
+  title?: string;
+  description?: string;
+  image?: string;
+  text?: string;
+  hasSchedule?: boolean;
+  error?: string;
+}
+
+/**
+ * 일정을 페이지가 열린 뒤에 불러오는 여행사(노랑풍선·참좋은여행 등)는 서버의 실제 브라우저로 열어
+ * 화면 글자를 읽어 온다 (Vercel 함수 /api/render, 10~30초).
+ */
+export async function renderPage(url: string): Promise<Rendered | null> {
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), 58000);
+  try {
+    const r = await fetch(`/api/render?url=${encodeURIComponent(url)}`, { signal: ctrl.signal });
+    if (!r.ok) return null;
+    const d = (await r.json()) as Rendered;
+    return d.error ? null : d;
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(t);
+  }
+}

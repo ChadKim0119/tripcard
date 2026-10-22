@@ -192,7 +192,7 @@ export interface ParsedItinerary {
 const DATE_RE = /(20\d{2})\s*[.\-/년]\s*(\d{1,2})\s*[.\-/월]\s*(\d{1,2})\s*일?/g;
 // 1일차 · 제1일 · DAY 1 · Day1 · 1일째 · [1일]
 const DAY_RE = /(?:^|[\s\[(【<|·•])(?:DAY\s*-?\s*0?(\d{1,2})|제\s*(\d{1,2})\s*일(?!\s*[~\-])|(\d{1,2})\s*일\s*(?:차|째))/gi;
-const TIME_RE = /^(?:(오전|오후|AM|PM)\s*)?(\d{1,2})(?::(\d{2})|\s*시(?:\s*(\d{1,2})\s*분)?)\s*(AM|PM)?[\s\-–~:)]*/i;
+const TIME_RE = /^(?:(오전|오후|AM|PM)\s*)?(\d{1,2})(?::(\d{2})|\s*시(?!간)(?:\s*(\d{1,2})\s*분)?)\s*(AM|PM)?[\s\-–~:)]*/i;
 const NOISE = /^(?:[-–—=_*#•·▶▷►◆◇■□○●※|]+|일정|상세\s*일정|여행\s*일정|교통편?|식사|숙박|호텔|일자|지역|시간)$/;
 
 function cleanLine(s: string) {
@@ -200,6 +200,9 @@ function cleanLine(s: string) {
 }
 
 function parseTime(line: string): { time: string; rest: string } {
+  // [12:05] OZ501편 … 처럼 대괄호 안 시각
+  const br = line.match(/^\[(\d{1,2}:\d{2})\]\s*/);
+  if (br) return { time: parseTime(br[1]).time, rest: line.slice(br[0].length).trim() };
   const m = line.match(TIME_RE);
   if (!m || Number(m[2]) > 24) return { time: '', rest: line };
   let h = Number(m[2]);
@@ -210,59 +213,167 @@ function parseTime(line: string): { time: string; rest: string } {
   return { time: `${pad(h)}:${pad(Number(min))}`, rest: line.slice(m[0].length).trim() };
 }
 
+type DayMark = { day: number; at: number; len: number };
+
+/**
+ * 일차 표시(1일차, DAY 1 …)가 1부터 차례로 이어지는 묶음을 모두 찾고 가장 그럴듯한 하나를 고른다.
+ * 여행사 페이지에는 후기("1일차: 금문교가 멋졌다")나 간략 일정이 상세 일정보다 먼저 나오는 경우가 많다
+ * → 일수가 가장 많고, 같으면 내용이 가장 긴 묶음(= 상세 일정).
+ */
+function bestDayRun(text: string): { marks: DayMark[]; end: number } {
+  const marks: DayMark[] = [...text.matchAll(DAY_RE)]
+    .map((m) => ({ day: Number(m[1] ?? m[2] ?? m[3]), at: m.index! + (m[0].length - m[0].trimStart().length), len: m[0].trimStart().length }))
+    .filter((m) => m.day >= 1 && m.day <= 60);
+  const runs: DayMark[][] = [];
+  for (const m of marks) {
+    const run = runs[runs.length - 1];
+    if (m.day === 1) runs.push([m]);
+    else if (run && m.day === run[run.length - 1].day + 1) run.push(m);
+  }
+  let best: { marks: DayMark[]; end: number; score: number } = { marks: [], end: text.length, score: -1 };
+  runs.forEach((run, i) => {
+    const next = runs[i + 1]?.[0]?.at ?? text.length;
+    const last = run[run.length - 1];
+    const end = Math.min(next, last.at + 6000);
+    const score = run.length * 100000 + (end - run[0].at);
+    if (score > best.score) best = { marks: run, end, score };
+  });
+  return best;
+}
+
+const DATE_ONLY = /^\(?(?:20\d{2}\s*[.\-/년]\s*)?\d{1,2}\s*[.\-/월]\s*\d{1,2}\s*일?\s*(?:\([월화수목금토일]\))?\)?$/;
+const TIME_ONLY = /^(?:(?:오전|오후)\s*)?\d{1,2}:\d{2}$/;
+const SKIP_LINE = /^(?:보기|내용\s*보기|더\s*보기|더보기|접기|닫기|전체\s*열기|전체\s*닫기|자세히\s*보기|간략\s*일정\s*더\s*보기|일정\s*더\s*보기|참고하세요\.?|지도\s*보기|상세\s*보기|비용|소요시간|USD.*\/\s*인|약\s*\d+\s*(?:분|시간))$/i;
+// 가격·소요시간 줄 ("$50 /1인", "USD 40 / 인", "1인 30,000원") → 앞 항목 메모
+const PRICE_LINE = /^(?:\$|USD|EUR|JPY|￥|€)?\s*[\d,.]+\s*(?:원|달러|엔)?\s*~?\s*\/?\s*(?:1\s*)?인$|^(?:1\s*인|성인)\s*[\d,]+\s*원$|^\$\s*[\d,.]+/i;
+// 페이지 끝의 공통 영역(관련 상품·고객센터·약관) — 마지막 일차가 여기까지 먹지 않도록 자른다
+const FOOTER_RE = /\n\s*(?:관련\s*기획전|함께\s*보면\s*좋은|다른\s*상품|고객센터|이용약관|개인정보처리방침|회사소개|사업자등록번호|Copyright|All Rights Reserved|여행\s*안전\s*유의사항|호텔\s*등급\s*안내|상품평|여행자\s*보험\s*안내|상품\s*추가\s*사항)/i;
+const MEAL_LINE = /^\[?(조식|중식|석식|아침|점심|저녁)\]?\s*[:：]?\s*(.+)$/;
+const norm = (s: string) => s.replace(/\(.*?\)|\[.*?\]/g, '').replace(/[^0-9a-z가-힣]/gi, '').toLowerCase();
+
+type Item = ParsedItinerary['days'][number]['items'][number];
+
+/** 한 일차 분량의 글을 항목으로 — 시간, 관광지, 선택관광, 식사, 숙박을 나누고 긴 설명은 메모로 */
+function dayItems(chunk: string): Item[] {
+  const multiline = chunk.includes('\n');
+  const rawLines = multiline
+    ? chunk.split('\n')
+    : chunk.split(/(?<=[.!?])\s+(?=\S)|\s{3,}|(?=(?:오전|오후)\s*\d{1,2}\s*시)|(?=\s\d{1,2}:\d{2}\s)/);
+  const items: Item[] = [];
+  const meals: string[] = [];
+  let hotel = '';
+  let pendingTime = '';
+  let prefix = '';
+  let expect: 'hotel' | 'meal' | null = null;
+
+  const lines = rawLines.map((l) => l.replace(/\s+/g, ' ').trim()).filter(Boolean);
+  lines.forEach((raw, idx) => {
+    const bullet = /^[-–—*•·▶▷►◆◇■□○●※>]/.test(raw);
+    const line = cleanLine(raw).replace(/[◆◇■□●]+$/, '').trim();
+    if (!line || line.length < 2 && !/\d/.test(line)) return;
+    if (DATE_ONLY.test(line) || SKIP_LINE.test(line) || NOISE.test(line)) {
+      if (line === '숙박' || line === '호텔') expect = 'hotel';
+      else if (line === '식사') expect = 'meal';
+      return;
+    }
+    if (TIME_ONLY.test(line)) {
+      pendingTime = parseTime(line).time;
+      return;
+    }
+    if (line === '선택관광' || line === '선택 관광') {
+      prefix = '[선택] ';
+      return;
+    }
+    const meal = line.match(MEAL_LINE);
+    if (meal && (expect === 'meal' || /^\[/.test(line))) {
+      meals.push(`${meal[1]} ${meal[2]}`.trim());
+      return;
+    }
+    if (expect === 'hotel') {
+      hotel = line;
+      expect = null;
+      return;
+    }
+    expect = null;
+    const { time, rest } = parseTime(line);
+    let title = rest.replace(/^[:\-–\s]+/, '');
+    if (!title) return;
+    const last = items[items.length - 1];
+    if (PRICE_LINE.test(title) || /^약?\s*\d+\s*(?:시간|분)/.test(title)) {
+      if (last) last.body = last.body ? `${last.body}\n${title}` : title;
+      return;
+    }
+    // [선택관광] 표기는 하나로. 표시는 이 줄에만 쓰고 바로 비운다 (건너뛴 줄 뒤로 새지 않게)
+    let opt = prefix;
+    prefix = '';
+    if (/^\[?선택\s*관광\]?\s*/.test(title)) {
+      title = title.replace(/^\[?선택\s*관광\]?\s*/, '');
+      opt = '[선택] ';
+    }
+    // 긴 설명문·※ 안내·- 부연은 바로 앞 항목의 메모
+    if (title.length > 60 || (bullet && last && !time && !pendingTime)) {
+      if (last && last.body.length < 300) last.body = last.body ? `${last.body}\n${title.slice(0, 300)}` : title.slice(0, 300);
+      return;
+    }
+    // 같은 장소가 제목·이름·설명 머리로 여러 번 나오는 페이지 → 한 번만
+    const n = norm(title);
+    if (n && items.some((it) => norm(it.title).includes(n) || (n.includes(norm(it.title)) && norm(it.title).length >= 2))) return;
+    // 도시 이름만 있는 머리줄(다음 줄이 "요세미티 국립공원 관광"처럼 그 이름으로 시작) → 건너뛴다
+    const nextLine = lines[idx + 1] ?? '';
+    if (multiline && !/\s/.test(title) && title.length <= 10 && !time && !pendingTime && nextLine.includes(title) && nextLine !== title) return;
+    items.push({ time: time || pendingTime, title: (opt + title).slice(0, 200), body: '' });
+    pendingTime = '';
+  });
+
+  if (meals.length) items.push({ time: '', title: '식사', body: meals.join('\n') });
+  if (hotel) items.push({ time: '', title: '숙박', body: hotel });
+  return items.slice(0, 40);
+}
+
+function isoFrom(m: RegExpMatchArray) {
+  const d = `${m[1]}-${pad(Number(m[2]))}-${pad(Number(m[3]))}`;
+  return parseISODate(d) && Number(d.slice(5, 7)) <= 12 && Number(d.slice(8, 10)) <= 31 ? d : null;
+}
+
 /**
  * 여행사 일정표 텍스트(붙여넣기 또는 페이지 본문)를 일차별 항목으로 나눈다.
  * 줄바꿈이 없는 한 덩어리 본문도 일차 표시를 기준으로 자른다.
  */
 export function parseItinerary(text: string): ParsedItinerary {
   const out: ParsedItinerary = { days: [] };
-  const dates = [...text.matchAll(DATE_RE)]
-    .map((m) => `${m[1]}-${pad(Number(m[2]))}-${pad(Number(m[3]))}`)
-    .filter((d) => parseISODate(d) && Number(d.slice(5, 7)) <= 12 && Number(d.slice(8, 10)) <= 31);
-  if (dates.length) {
-    const sorted = [...new Set(dates)].sort();
-    out.start_date = sorted[0];
-    const last = sorted[sorted.length - 1];
-    if (last !== sorted[0] && daysBetween(sorted[0], last) <= 60) out.end_date = last;
+  const { marks, end } = bestDayRun(text);
+
+  // 날짜: 상세 일정의 1일차·마지막 일차 바로 뒤 날짜가 가장 정확하다 (페이지 곳곳의 후기·마감일 날짜는 무시)
+  if (marks.length) {
+    const near = (m: DayMark) => text.slice(m.at, m.at + m.len + 40).match(new RegExp(DATE_RE.source));
+    const first = near(marks[0]);
+    const last = marks.length > 1 ? near(marks[marks.length - 1]) : null;
+    if (first) out.start_date = isoFrom(first) ?? undefined;
+    if (last) out.end_date = isoFrom(last) ?? undefined;
   }
+  if (!out.start_date) {
+    const dates = [...text.matchAll(DATE_RE)].map(isoFrom).filter((d): d is string => !!d);
+    if (dates.length) {
+      const sorted = [...new Set(dates)].sort();
+      out.start_date = sorted[0];
+      const last = sorted[sorted.length - 1];
+      if (last !== sorted[0] && daysBetween(sorted[0], last) <= 60) out.end_date = last;
+    }
+  }
+  if (out.start_date && out.end_date && out.end_date < out.start_date) out.end_date = undefined;
   const nights = text.match(/(\d{1,2})\s*박\s*(\d{1,2})\s*일/);
   if (out.start_date && !out.end_date && nights) out.end_date = addDays(out.start_date, Number(nights[2]) - 1);
+  if (out.start_date && !out.end_date && marks.length > 1) out.end_date = addDays(out.start_date, marks[marks.length - 1].day - 1);
 
-  const marks = [...text.matchAll(DAY_RE)]
-    .map((m) => ({ day: Number(m[1] ?? m[2] ?? m[3]), at: m.index! + (m[0].length - m[0].trimStart().length), len: m[0].trimStart().length }))
-    .filter((m) => m.day >= 1 && m.day <= 60);
-  // 일차가 1부터 차례로 늘어나는 표시만 쓴다 (본문 속 "3일째 되는 날" 같은 잡음 제거)
-  const seqMarks: typeof marks = [];
-  for (const m of marks) {
-    const prev = seqMarks[seqMarks.length - 1];
-    if (prev ? m.day === prev.day + 1 || (m.day === prev.day && m.at - prev.at > 400) : m.day === 1) {
-      if (prev && m.day === prev.day) continue;
-      seqMarks.push(m);
+  marks.forEach((m, i) => {
+    let chunk = text.slice(m.at + m.len, marks[i + 1]?.at ?? end).slice(0, 6000);
+    if (i === marks.length - 1) {
+      const f = chunk.search(FOOTER_RE);
+      if (f > 0) chunk = chunk.slice(0, f);
     }
-  }
-  for (let i = 0; i < seqMarks.length; i++) {
-    const m = seqMarks[i];
-    const chunk = text.slice(m.at + m.len, seqMarks[i + 1]?.at ?? text.length).slice(0, 4000);
-    const lines = chunk
-      .split(/\n|(?<=[.!?])\s+(?=\S)|\s{3,}|(?=(?:오전|오후)\s*\d{1,2}\s*시)|(?=\s\d{1,2}:\d{2}\s)/)
-      .map(cleanLine)
-      .filter((l) => l && l.length > 1 && !NOISE.test(l));
-    const items: ParsedItinerary['days'][number]['items'] = [];
-    for (const raw of lines) {
-      const { time, rest } = parseTime(raw);
-      const line = rest.replace(/^[:\-–\s]+/, '');
-      if (!line) continue;
-      if (line.length > 120 && items.length) {
-        const last = items[items.length - 1];
-        last.body = last.body ? `${last.body}\n${line}` : line;
-        continue;
-      }
-      items.push({ time, title: line.slice(0, 200), body: line.length > 200 ? line.slice(200) : '' });
-      if (items.length >= 30) break;
-    }
-    // 머리줄 남은 부분("1일차 인천 – 오사카")이 첫 항목이 되므로 그대로 둔다
-    out.days.push({ day: m.day, items });
-  }
+    // 머리줄 남은 부분("1일차 인천 – 오사카")이 첫 항목이 된다
+    out.days.push({ day: m.day, items: dayItems(chunk) });
+  });
   return out;
 }
 
@@ -345,7 +456,7 @@ export function researchLinks(trip: Pick<Trip, 'destination' | 'title' | 'start_
  */
 export function placeQuery(entry: Pick<TripEntry, 'title'>, destination: string): string {
   const t = entry.title.trim();
-  if (/^(식사|조식|중식|석식)$/.test(t) || /출발\s*→/.test(t)) return '';
+  if (/^(식사|숙박|조식|중식|석식)$/.test(t) || /출발\s*→/.test(t) || /(조식|중식|석식)\s*후|투숙|휴식/.test(t)) return '';
   if (t.length > 14 && /(이동|휴식|체크인|자유\s*시간)/.test(t)) return '';
   const core = t
     .replace(/^숙박\s*[:：]\s*/, '')

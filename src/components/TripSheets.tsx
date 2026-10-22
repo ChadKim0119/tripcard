@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { aiTrip, unfurl, type Unfurled } from '../lib/api';
+import { aiTrip, renderPage, unfurl, type Unfurled } from '../lib/api';
 import { findCover } from '../lib/covers';
 import { asUrl, hostOf, youtubeThumb } from '../lib/detect';
 import {
@@ -314,9 +314,21 @@ export function NewTripSheet({
         if (m) metas.push(m);
       }
     }
-    const first = metas[0];
+    let first = metas[0];
     const pageText = metas.map((m) => m.text ?? '').join('\n');
-    const all = [text, pageText].filter(Boolean).join('\n');
+    let all = [text, pageText].filter(Boolean).join('\n');
+
+    // 빠른 읽기로 일정이 안 보이면(일정을 나중에 불러오는 여행사) 서버 브라우저로 페이지를 열어 다시 읽는다
+    const hasSiteItinerary = metas.some((m) => m.itinerary?.days.length);
+    const productUrl = urls.find((u) => !youtubeThumb(u));
+    if (!hasSiteItinerary && productUrl && parseItinerary(all).days.filter((d) => d.items.length).length < 2) {
+      setBusy('여행사 페이지를 열어 일정을 읽는 중… (최대 30초)');
+      const r = await renderPage(productUrl);
+      if (r?.text) {
+        all = [text, r.text].filter(Boolean).join('\n');
+        if (!first) first = { url: productUrl, title: r.title, description: r.description, image: r.image };
+      }
+    }
     const head = [first?.title, first?.description, text.slice(0, 500)].filter(Boolean).join(' ');
 
     let next: Draft = {
@@ -525,7 +537,7 @@ export function NewTripSheet({
               </ol>
             </details>
           ) : (
-            <p className="muted-text">일정을 찾지 못했습니다. 만든 뒤 일정 탭에서 추가하거나, 일정표 텍스트를 붙여넣어 다시 불러오세요.</p>
+            <p className="muted-text">일정을 찾지 못했습니다. 출발일까지 정해진 상품 페이지 링크인지 확인하거나, 일정표 텍스트를 복사해 붙여넣어 다시 불러오세요. 만든 뒤 일정 탭에서 직접 추가해도 됩니다.</p>
           )}
           {loaded.links.length ? <p className="muted-text">자료 링크 {loaded.links.length}개 저장</p> : null}
         </div>
