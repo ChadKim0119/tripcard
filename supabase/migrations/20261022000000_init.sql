@@ -1,4 +1,5 @@
--- 트립카드 스키마 (새 Supabase 프로젝트에 이 파일 하나를 적용한다).
+-- 트립카드 스키마. 적용됨: Supabase 프로젝트 zyhlhkqyigyrubovkxjr (MyArchive 와 공유 — touch_updated_at 은 그쪽에 이미 있음).
+-- 새 프로젝트에는 이 파일 하나를 그대로 적용한다.
 -- 공개 링크(share_token)를 가진 사람은 로그인 없이 보고 수정한다 → 항목 접근은 모두 security definer RPC 로만.
 -- 변경은 realtime.send 로 공개 채널 'trip:<token>' 에 브로드캐스트해 모든 기기에 즉시 반영한다.
 

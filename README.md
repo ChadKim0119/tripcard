@@ -5,7 +5,7 @@
 
 - 디자인: **MapStone Blue Infographic v1** (`src/styles/mapstone-tokens.css` 원본 + `tokens.css` 확장)
 - 프론트: Vite + React 19 + TypeScript (정적 배포, Vercel)
-- 백엔드: Supabase (Postgres + RLS · Auth · Realtime broadcast · Edge Functions)
+- 백엔드: Supabase (Postgres + RLS · Auth · Realtime broadcast · Edge Functions) — **MyArchive 와 같은 프로젝트**(`zyhlhkqyigyrubovkxjr`)를 쓴다. 계정은 공유, 데이터는 `trips`·`trip_entries`·`trip_members` 로 분리, 서버 함수는 `trip-` 접두어로 분리
 
 ## 메뉴
 
@@ -20,19 +20,19 @@
 | 함께 쓰기 | 공유 링크 `/t/<토큰>` — 로그인 없이 보고 수정, 모든 기기에 실시간 반영. 로그인한 사람이 열면 그 사람 목록에 추가. 소유자는 공유 끄기·새 링크 |
 | 설정 | 계정·로그아웃, 테마, 버전(리비전 히스토리) |
 
-## 설치 (새 환경)
+## 설치 (다른 Supabase 프로젝트로 옮길 때)
 
 1. Supabase 프로젝트를 만들고 `supabase/migrations/20261022000000_init.sql` 을 적용한다.
-2. Edge Functions `unfurl`(링크 읽기), `ai`(일정 정리)를 배포한다 (`verify_jwt` 켬).
+2. Edge Functions `trip-unfurl`(링크 읽기), `trip-ai`(일정 정리)를 배포한다 (`verify_jwt` 켬).
    (선택) Secrets 에 `ANTHROPIC_API_KEY` — 없으면 규칙 기반 일정 인식만 쓴다. `AI_MODEL` 로 모델 변경(기본 `claude-opus-5-5`).
 3. Vercel 프로젝트 환경 변수 `VITE_SUPABASE_URL`, `VITE_SUPABASE_KEY`(publishable key) 를 지정하고 배포한다.
-4. Supabase Auth → URL Configuration 의 Site URL 을 배포 주소로 바꾼다 (가입 확인·비밀번호 재설정 메일 링크).
+4. Supabase Auth → URL Configuration 의 Redirect URLs 에 배포 주소를 추가한다 (가입 확인·비밀번호 재설정 메일 링크).
 
 ## 개발
 
 ```bash
 npm install
-VITE_SUPABASE_URL=… VITE_SUPABASE_KEY=… npm run dev
+npm run dev     # 기본값으로 MyArchive Supabase 프로젝트에 연결
 npm test        # 일정 파서·템플릿·검색 링크 단위 테스트
 npm run build
 ```
