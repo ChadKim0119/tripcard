@@ -242,13 +242,17 @@ export function useTrips(userId: string | null) {
     }
   });
   const [sync, setSync] = useState<SyncState>('loading');
+  // 늦게 도착한 이전 요청이 최신 목록(예: 방금 지운 카드)을 덮어쓰지 않도록
+  const seqRef = useRef(0);
 
   const refresh = useCallback(async () => {
+    const seq = ++seqRef.current;
     const tokens = localTokens();
     const [mine, local] = await Promise.all([
       userId ? supabase.rpc('my_trips') : Promise.resolve({ data: [], error: null }),
       tokens.length ? supabase.rpc('trips_by_tokens', { p_tokens: tokens }) : Promise.resolve({ data: [], error: null }),
     ]);
+    if (seq !== seqRef.current) return;
     if (mine.error || local.error) {
       setSync(navigator.onLine ? 'error' : 'offline');
       return;
@@ -307,10 +311,8 @@ export function useTrips(userId: string | null) {
         : userId
           ? await supabase.from('trip_members').delete().eq('trip_id', trip.id).eq('user_id', userId)
           : { error: null };
-      if (error) {
-        void refresh();
-        throw new Error(error.message);
-      }
+      void refresh();
+      if (error) throw new Error(error.message);
     },
     [refresh, userId],
   );
