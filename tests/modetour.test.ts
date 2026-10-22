@@ -9,13 +9,15 @@ describe('모두투어 상품 → 일정', () => {
     expect(modetourProductNo(new URL('https://example.com/package/112891965'))).toBeNull();
   });
 
-  const it_ = modetourItinerary(fixture.info, fixture.schedule)!;
+  const it_ = modetourItinerary(fixture.info, fixture.schedule, fixture.detail)!;
   it('제목·날짜·요약', () => {
     expect(it_.title).toContain('도야/북해도 4일');
     expect(it_.start_date).toBe('2026-12-27');
     expect(it_.end_date).toBe('2026-12-30');
     expect(it_.summary).toContain('3박 4일');
     expect(it_.summary).toContain('에어프레미아 YP751');
+    expect(it_.cover).toBe('https://img.modetour.com/eagle/photoimg/73208/rfile/638932009618497007.jpg');
+    expect(modetourItinerary(fixture.info, fixture.schedule)!.cover).toBeNull();
   });
   it('일차별 항목', () => {
     expect(it_.days.map((d) => d.day)).toEqual([1, 2, 3, 4]);

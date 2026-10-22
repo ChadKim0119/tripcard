@@ -25,6 +25,18 @@ export interface Revision {
 
 export const REVISIONS: Revision[] = [
   {
+    version: '1.3.0',
+    date: '2026-10-22',
+    agents: ['claude-code'],
+    title: '여행 카드 표지 사진',
+    changes: [
+      '모두투어 상품 링크는 상품 사진 갤러리의 대표 사진을 표지로 가져옴',
+      '상품 사진이 없으면 여행지 대표 명소 사진을 표지로 (오사카성, 성산일출봉, 에펠탑 등 112곳)',
+      '목록에 없는 여행지는 위키백과에서 그 지역 사진을 찾아 표지로',
+      '표지가 없던 기존 여행 카드에도 여행지 사진 표시',
+    ],
+  },
+  {
     version: '1.2.1',
     date: '2026-10-22',
     agents: ['claude-code'],

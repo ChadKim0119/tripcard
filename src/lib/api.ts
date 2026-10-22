@@ -13,6 +13,7 @@ export interface Unfurled {
     start_date: string;
     end_date: string;
     summary: string;
+    cover?: string | null;
     days: { day: number; items: { time: string; title: string; note: string }[] }[];
   };
 }

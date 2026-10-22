@@ -87,8 +87,8 @@ async function modetour(no: string): Promise<Itinerary | null> {
       return null;
     }
   };
-  const [info, schedule] = await Promise.all([get('GetPackageInfo'), get('GetScheduleList')]);
-  return modetourItinerary(info, schedule);
+  const [info, schedule, detail] = await Promise.all([get('GetPackageInfo'), get('GetScheduleList'), get('GetProductDetailInfo')]);
+  return modetourItinerary(info, schedule, detail);
 }
 
 Deno.serve(async (req) => {
@@ -190,6 +190,7 @@ Deno.serve(async (req) => {
   if (itinerary) {
     out.itinerary = itinerary;
     if (itinerary.title) out.title = itinerary.title;
+    if (itinerary.cover) out.image = itinerary.cover;
     out.site_name = '모두투어';
   }
 

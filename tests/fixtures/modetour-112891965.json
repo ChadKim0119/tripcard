@@ -493,5 +493,51 @@
     }
    ]
   }
+ },
+ "detail": {
+  "result": {
+   "representativeProduct": [
+    {
+     "url": "https://img.modetour.com/eagle/photoimg/73208/rfile/638932009618497007.jpg",
+     "used": 1
+    },
+    {
+     "url": "https://img.modetour.com/eagle/photoimg/73208/rfile/638977906983644035.jpg",
+     "used": 1
+    },
+    {
+     "url": "https://img.modetour.com/eagle/photoimg/73208/rfile/638296203437410304.jpg",
+     "used": 1
+    },
+    {
+     "url": "https://img.modetour.com/eagle/photoimg/73208/rfile/638296201978615213.jpg",
+     "used": 1
+    },
+    {
+     "url": "https://img.modetour.com/eagle/photoimg/73208/rfile/638290017267760035.jpg",
+     "used": 1
+    },
+    {
+     "url": "https://img.modetour.com/eagle/photoimg/73208/rfile/638296203417736847.jpg",
+     "used": 1
+    },
+    {
+     "url": "https://img.modetour.com/eagle/photoimg/75136/rfile/635380935330959927.jpg",
+     "used": 1
+    },
+    {
+     "url": "https://img.modetour.com/eagle/photoimg/25148/rfile/635380932353648678.jpg",
+     "used": 1
+    },
+    {
+     "url": "https://img.modetour.com/eagle/photoimg/1f804d1c7d74473bb21ee8aab4deff43.jpg",
+     "used": 1
+    },
+    {
+     "url": "https://img.modetour.com/eagle/photoimg/26595/rfile/638084397709960725.jpg",
+     "used": 1
+    }
+   ]
+  }
  }
 }

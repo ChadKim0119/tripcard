@@ -1,5 +1,6 @@
 import { useMemo, useState, type FormEvent, type ReactNode } from 'react';
 import { unfurl } from '../lib/api';
+import { findCover, coverFromMap } from '../lib/covers';
 import { asUrl, hostOf, youtubeThumb } from '../lib/detect';
 import { timeAgo } from '../lib/prefs';
 import {
@@ -81,11 +82,13 @@ export function TripView({ api, me, setMe, canUnfurl, notify, onBack, onRemoveTr
       fail,
     );
   const progress = checklistProgress(entries, 'before');
+  // 표지가 없으면 여행지 대표 사진을 보여 준다 (저장은 하지 않음)
+  const cover = trip.cover ?? coverFromMap(trip.destination);
 
   return (
     <div className="trip">
-      <header className={`trip-hero${trip.cover ? ' has-cover' : ''}`}>
-        {trip.cover ? <img className="trip-hero-img" src={trip.cover} alt="" referrerPolicy="no-referrer" onError={(e) => (e.currentTarget.style.display = 'none')} /> : null}
+      <header className={`trip-hero${cover ? ' has-cover' : ''}`}>
+        {cover ? <img className="trip-hero-img" src={cover} alt="" referrerPolicy="no-referrer" onError={(e) => (e.currentTarget.style.display = 'none')} /> : null}
         <div className="trip-hero-bar">
           {headerStart}
           {onBack ? (
@@ -168,7 +171,10 @@ export function TripView({ api, me, setMe, canUnfurl, notify, onBack, onRemoveTr
         <TripInfoSheet
           trip={trip}
           onSave={(patch) => {
-            void api.update(patch).then(() => notify('저장했습니다', 'success'), fail);
+            // 표지를 비우고 목적지를 정했으면 그 여행지 대표 사진을 넣는다
+            void (patch.cover ? Promise.resolve(patch.cover) : findCover(patch.destination))
+              .then((c) => api.update({ ...patch, cover: c ?? null }))
+              .then(() => notify('저장했습니다', 'success'), fail);
             setInfoOpen(false);
           }}
           onRemove={onRemoveTrip}

@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { aiTrip, unfurl, type Unfurled } from '../lib/api';
+import { findCover } from '../lib/covers';
 import { asUrl, hostOf, youtubeThumb } from '../lib/detect';
 import {
   addDays,
@@ -337,8 +338,8 @@ export function NewTripSheet({
         ...next,
         title: cleanTitle(site.title) || next.title,
         destination: guessDestination(cleanTitle(site.title)) || next.destination,
-        // 여행사 공통 홍보 배너(og:image)는 상품 표지가 아니다
-        cover: next.cover && /messenger_img|\/talk\//.test(next.cover) ? null : next.cover,
+        // 상품 갤러리 사진이 표지. 여행사 공통 홍보 배너(og:image)는 상품 표지가 아니다
+        cover: site.cover ?? (next.cover && /messenger_img|\/talk\//.test(next.cover) ? null : next.cover),
         start_date: site.start_date || null,
         end_date: site.end_date || null,
         summary: [site.summary, next.summary === site.title ? '' : next.summary].filter(Boolean).join('\n').slice(0, 400),
@@ -391,6 +392,9 @@ export function NewTripSheet({
       });
     });
 
+    // 상품 사진이 없으면 여행지 대표 사진
+    if (!next.cover) next.cover = await findCover(next.destination);
+
     setDraft(next);
     setLoaded({ plans, links: linkEntries, packing, via });
     setBusy(null);
@@ -415,7 +419,7 @@ export function NewTripSheet({
           end_date: draft.end_date,
           members: splitMembers(draft.membersText),
           summary: draft.summary.trim(),
-          cover: draft.cover,
+          cover: draft.cover ?? (await findCover(draft.destination.trim())),
           source_url: draft.source_url,
         },
         entries,

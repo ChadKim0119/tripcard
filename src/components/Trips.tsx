@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { findUrl } from '../lib/detect';
+import { coverFromMap } from '../lib/covers';
 import { dDay, formatRange, tripPhase, type Trip } from '../lib/trip';
 import { getMemberName, joinTrip, rememberTrip, setMemberName, useTrip, type TripsApi } from '../lib/tripStore';
 import { Icon } from './Icon';
@@ -180,10 +181,11 @@ function TripCard({ trip, onOpen, loggedIn }: { trip: Trip; onOpen: () => void; 
   const total = trip.check_total ?? 0;
   const done = trip.check_done ?? 0;
   const phase = tripPhase(trip);
+  const cover = trip.cover ?? coverFromMap(trip.destination);
   return (
     <button type="button" className="card trip-card" onClick={onOpen}>
       <span className="trip-card-cover">
-        {trip.cover ? <img src={trip.cover} alt="" loading="lazy" referrerPolicy="no-referrer" /> : <Icon name="plane" size={24} />}
+        {cover ? <img src={cover} alt="" loading="lazy" referrerPolicy="no-referrer" /> : <Icon name="plane" size={24} />}
         <span className={`trip-dday ph-${phase}`}>{dDay(trip)}</span>
       </span>
       <span className="card-body">

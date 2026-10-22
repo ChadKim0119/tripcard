@@ -112,6 +112,13 @@ export function TripApp({ user, initialTrip }: { user: User | null; initialTrip:
               <button type="button" className="version-btn" onClick={() => (setSettingsOpen(false), setRevOpen(true))} aria-label={`버전 ${APP_VERSION}, 리비전 히스토리 보기`}>
                 v{APP_VERSION}
               </button>
+              <p className="muted-text">
+                여행지 기본 표지 사진:{' '}
+                <a className="link-btn" href="https://commons.wikimedia.org/" target="_blank" rel="noopener noreferrer">
+                  Wikimedia Commons
+                </a>{' '}
+                (각 사진의 자유 라이선스를 따름)
+              </p>
             </section>
           </div>
         </Modal>

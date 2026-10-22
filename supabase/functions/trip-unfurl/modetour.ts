@@ -7,6 +7,8 @@ export interface Itinerary {
   start_date: string;
   end_date: string;
   summary: string;
+  /** 상품 갤러리의 첫 사진 (페이지 og:image 는 여행사 공통 배너라 쓰지 않는다) */
+  cover: string | null;
   days: { day: number; items: { time: string; title: string; note: string }[] }[];
 }
 
@@ -49,6 +51,10 @@ export interface PackageInfo {
 
 export interface ScheduleList {
   result?: { scheduleItemList?: Day[] };
+}
+
+export interface ProductDetail {
+  result?: { representativeProduct?: { url?: string | null; used?: number }[] | null };
 }
 
 /** 모두투어 상품 주소면 상품 번호 */
@@ -115,7 +121,7 @@ function dayItems(day: Day): Item[] {
   return items;
 }
 
-export function modetourItinerary(info: PackageInfo | null, schedule: ScheduleList | null): Itinerary | null {
+export function modetourItinerary(info: PackageInfo | null, schedule: ScheduleList | null, detail: ProductDetail | null = null): Itinerary | null {
   const list = schedule?.result?.scheduleItemList ?? [];
   const r = info?.result;
   if (!list.length && !r?.pName) return null;
@@ -132,6 +138,7 @@ export function modetourItinerary(info: PackageInfo | null, schedule: ScheduleLi
     start_date: d?.sdate ?? '',
     end_date: d?.edate ?? '',
     summary,
+    cover: detail?.result?.representativeProduct?.find((p) => p.url && p.used !== 0 && /^https:\/\//.test(p.url))?.url ?? null,
     days: list
       .map((day, i) => ({ day: i + 1, items: dayItems(day).map(({ time, title, note }) => ({ time, title: title.slice(0, 200), note: note.slice(0, 1000) })) }))
       .filter((x) => x.items.length),
