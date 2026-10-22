@@ -1,0 +1,172 @@
+/* ============================================================
+   MyArchive tokens
+   1) mapstone-tokens.css — MapStone Blue Infographic v1 원본 (수정 금지)
+   2) 이 파일 — 아카이브 전용 확장. 새 값은 가능한 한 MapStone 팔레트 별칭으로 만든다.
+      MapStone 에 없는 값(다크 모드 표면)만 --ms-ext-* 원시값으로 추가한다.
+   컴포넌트(app.css)는 --ms-* / --ma-* 변수만 참조한다.
+   ============================================================ */
+@import './mapstone-tokens.css';
+
+@font-face {
+  font-family: 'Pretendard Variable';
+  src: url('/fonts/PretendardVariable.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  /* --- 확장 원시값: 다크 모드 표면 (MapStone navy 계열을 어둡게 연장) --- */
+  --ms-ext-navy-950: #0d1d33;
+  --ms-ext-navy-975: #091527;
+  --ms-ext-navy-925: #132a47;
+  --ms-ext-navy-900b: #1a355a;
+  --ms-ext-slate-400: #8ea2bd;
+
+  /* --- 아이템 타입 색 — MapStone timeline 의미색 재사용 --- */
+  --ma-type-link: var(--ms-color-action-primary);
+  --ma-type-link-bg: var(--ms-palette-blue-100);
+  --ma-type-video: var(--ms-palette-red-600);
+  --ma-type-video-bg: var(--ms-palette-red-50);
+  /* cyan-700·violet-600 은 옅은 배경 위 12px 굵은 글자에서 4.5:1 미달 → navy 를 섞어 AA 확보 */
+  --ma-type-page: color-mix(in srgb, var(--ms-palette-cyan-700) 80%, var(--ms-palette-navy-900));
+  --ma-type-page-bg: var(--ms-palette-cyan-100);
+  --ma-type-memo: var(--ms-palette-amber-700);
+  --ma-type-memo-bg: var(--ms-color-timeline-note);
+  --ma-type-prompt: color-mix(in srgb, var(--ms-palette-violet-600) 80%, var(--ms-palette-navy-900));
+  /* 글자로 쓰는 강조색. 라이트는 action 과 같고 다크는 밝은 파랑 (진한 배경 위 대비) */
+  --ma-action-ink: var(--ms-color-action-primary);
+  --ma-type-prompt-bg: var(--ms-palette-violet-100);
+
+  /* --- 작업 에이전트 색 (리비전 히스토리 태그) — MapStone 팔레트 --- */
+  --ma-agent-claude-code: var(--ms-palette-violet-600);
+  --ma-agent-claude-code-bg: var(--ms-palette-violet-100);
+  --ma-agent-codex: var(--ms-palette-green-700);
+  --ma-agent-codex-bg: var(--ms-palette-green-50);
+  --ma-agent-cursor: var(--ms-palette-blue-700);
+  --ma-agent-cursor-bg: var(--ms-palette-blue-100);
+  --ma-agent-gemini: var(--ms-palette-amber-700);
+  --ma-agent-gemini-bg: var(--ms-palette-amber-100);
+  --ma-agent-human: var(--ms-palette-slate-600);
+  --ma-agent-human-bg: var(--ms-palette-blue-50);
+
+  /* --- 여행: 단계 색 (MapStone timeline 의미색) · 표지 위 글자 대비용 navy 그라데이션 --- */
+  --ma-phase-before: var(--ms-color-status-info);
+  --ma-phase-before-bg: var(--ms-color-status-info-bg);
+  --ma-phase-during: var(--ms-color-status-success);
+  --ma-phase-during-bg: var(--ms-color-status-success-bg);
+  --ma-phase-after: var(--ma-type-prompt);
+  --ma-phase-after-bg: var(--ma-type-prompt-bg);
+  --ma-trip-overlay: linear-gradient(180deg, rgb(22 54 93 / 35%) 0%, rgb(22 54 93 / 15%) 35%, rgb(22 54 93 / 88%) 100%);
+  --ma-hero-btn: rgb(255 255 255 / 18%);
+  --ma-hero-btn-hover: rgb(255 255 255 / 30%);
+
+  /* --- 앱 레이아웃 치수 (MapStone metrics 재사용) --- */
+  --ma-sidebar: 248px;
+  --ma-detail: var(--ms-size-panel);
+  --ma-bottom-nav: 64px;
+  --ma-card-min: 248px;
+  --ma-list-row: var(--ms-size-touch);
+  --ma-scrim: rgb(22 54 93 / 30%);
+  --ma-mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+
+  color-scheme: light;
+}
+
+/* --- 다크 모드: MapStone 의미 토큰을 재매핑 (원본 이름 유지 → 컴포넌트 수정 없음) --- */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --ms-color-surface-canvas: var(--ms-ext-navy-975);
+    --ms-color-surface-default: var(--ms-ext-navy-950);
+    --ms-color-surface-subtle: var(--ms-ext-navy-925);
+    --ms-color-surface-selected: var(--ms-ext-navy-900b);
+    --ms-color-text-primary: var(--ms-palette-blue-100);
+    --ms-color-text-secondary: var(--ms-palette-slate-300);
+    --ms-color-text-muted: var(--ms-ext-slate-400);
+    --ms-color-text-disabled: var(--ms-ext-slate-400);
+    --ms-color-border-default: var(--ms-ext-navy-900b);
+    --ms-color-border-strong: var(--ms-palette-navy-700);
+    --ms-color-action-primary: var(--ms-palette-blue-600);
+    --ms-color-action-hover: var(--ms-palette-blue-500);
+    --ma-action-ink: var(--ms-palette-blue-300);
+    --ms-color-action-disabled: var(--ms-ext-navy-925);
+    --ms-color-focus-ring: var(--ms-palette-blue-300);
+    --ms-color-brand-navy: var(--ms-palette-blue-100);
+    --ms-color-status-error: var(--ms-palette-red-50);
+    --ms-color-status-error-bg: var(--ms-palette-red-600);
+    --ms-color-status-success-bg: var(--ms-palette-green-700);
+    --ms-color-status-success: var(--ms-palette-green-50);
+    --ma-type-link-bg: var(--ms-ext-navy-900b);
+    --ma-type-video-bg: var(--ms-ext-navy-900b);
+    --ma-type-page-bg: var(--ms-ext-navy-900b);
+    --ma-type-memo-bg: var(--ms-ext-navy-925);
+    --ma-type-prompt-bg: var(--ms-ext-navy-900b);
+    --ma-type-link: var(--ms-palette-blue-300);
+    --ma-type-video: var(--ms-palette-red-50);
+    --ma-type-page: var(--ms-palette-cyan-500);
+    --ma-type-memo: var(--ms-palette-amber-100);
+    --ma-type-prompt: var(--ms-palette-violet-100);
+  --ma-agent-claude-code: var(--ms-palette-violet-100);
+  --ma-agent-codex: var(--ms-palette-green-50);
+  --ma-agent-cursor: var(--ms-palette-blue-300);
+  --ma-agent-gemini: var(--ms-palette-amber-100);
+  --ma-agent-human: var(--ms-palette-slate-300);
+  --ma-agent-claude-code-bg: var(--ms-ext-navy-900b);
+  --ma-agent-codex-bg: var(--ms-ext-navy-900b);
+  --ma-agent-cursor-bg: var(--ms-ext-navy-900b);
+  --ma-agent-gemini-bg: var(--ms-ext-navy-900b);
+  --ma-agent-human-bg: var(--ms-ext-navy-900b);
+    --ma-agent-claude-code: var(--ms-palette-violet-100);
+    --ma-agent-codex: var(--ms-palette-green-50);
+    --ma-agent-cursor: var(--ms-palette-blue-300);
+    --ma-agent-gemini: var(--ms-palette-amber-100);
+    --ma-agent-human: var(--ms-palette-slate-300);
+    --ma-agent-claude-code-bg: var(--ms-ext-navy-900b);
+    --ma-agent-codex-bg: var(--ms-ext-navy-900b);
+    --ma-agent-cursor-bg: var(--ms-ext-navy-900b);
+    --ma-agent-gemini-bg: var(--ms-ext-navy-900b);
+    --ma-agent-human-bg: var(--ms-ext-navy-900b);
+    --ms-shadow-card: 0 4px 16px rgb(0 0 0 / 30%);
+    --ms-shadow-floating: 0 12px 32px rgb(0 0 0 / 45%);
+    --ms-gradient-shell: linear-gradient(135deg, #0f2240, #0a1729);
+    --ma-scrim: rgb(0 0 0 / 55%);
+    color-scheme: dark;
+  }
+}
+:root[data-theme='dark'] {
+  --ms-color-surface-canvas: var(--ms-ext-navy-975);
+  --ms-color-surface-default: var(--ms-ext-navy-950);
+  --ms-color-surface-subtle: var(--ms-ext-navy-925);
+  --ms-color-surface-selected: var(--ms-ext-navy-900b);
+  --ms-color-text-primary: var(--ms-palette-blue-100);
+  --ms-color-text-secondary: var(--ms-palette-slate-300);
+  --ms-color-text-muted: var(--ms-ext-slate-400);
+  --ms-color-text-disabled: var(--ms-ext-slate-400);
+  --ms-color-border-default: var(--ms-ext-navy-900b);
+  --ms-color-border-strong: var(--ms-palette-navy-700);
+  --ms-color-action-primary: var(--ms-palette-blue-600);
+  --ms-color-action-hover: var(--ms-palette-blue-500);
+  --ma-action-ink: var(--ms-palette-blue-300);
+  --ms-color-action-disabled: var(--ms-ext-navy-925);
+  --ms-color-focus-ring: var(--ms-palette-blue-300);
+  --ms-color-brand-navy: var(--ms-palette-blue-100);
+  --ms-color-status-error: var(--ms-palette-red-50);
+  --ms-color-status-error-bg: var(--ms-palette-red-600);
+  --ms-color-status-success-bg: var(--ms-palette-green-700);
+  --ms-color-status-success: var(--ms-palette-green-50);
+  --ma-type-link-bg: var(--ms-ext-navy-900b);
+  --ma-type-video-bg: var(--ms-ext-navy-900b);
+  --ma-type-page-bg: var(--ms-ext-navy-900b);
+  --ma-type-memo-bg: var(--ms-ext-navy-925);
+  --ma-type-prompt-bg: var(--ms-ext-navy-900b);
+  --ma-type-link: var(--ms-palette-blue-300);
+  --ma-type-video: var(--ms-palette-red-50);
+  --ma-type-page: var(--ms-palette-cyan-500);
+  --ma-type-memo: var(--ms-palette-amber-100);
+  --ma-type-prompt: var(--ms-palette-violet-100);
+  --ms-shadow-card: 0 4px 16px rgb(0 0 0 / 30%);
+  --ms-shadow-floating: 0 12px 32px rgb(0 0 0 / 45%);
+  --ms-gradient-shell: linear-gradient(135deg, #0f2240, #0a1729);
+  --ma-scrim: rgb(0 0 0 / 55%);
+  color-scheme: dark;
+}

@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>트립카드</title>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#315A88"/>
+      <stop offset="1" stop-color="#16365D"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="url(#bg)"/>
+  <!-- 뒤 카드: 함께 쓰는 다른 가족 -->
+  <rect x="13" y="17" width="34" height="30" rx="5" fill="#87D0DF" transform="rotate(-9 30 32)"/>
+  <!-- 앞 카드: 여행 카드 (표지 + 제목 줄) -->
+  <rect x="17" y="18" width="34" height="31" rx="5" fill="#FFFFFF"/>
+  <rect x="21" y="22" width="26" height="12" rx="3" fill="#D2E2F7"/>
+  <rect x="21" y="38" width="15" height="3" rx="1.5" fill="#16365D"/>
+  <rect x="21" y="43" width="9" height="2.5" rx="1.25" fill="#B3C2D4"/>
+  <!-- 비행기: 여행 -->
+  <path d="M44.5 9.5 30 15.3l5.6 2.4 2.4 5.6z" fill="#3568C5"/>
+  <path d="m35.6 17.7 4-4" stroke="#FFFFFF" stroke-width="1.4" stroke-linecap="round"/>
+</svg>

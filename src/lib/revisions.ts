@@ -1,0 +1,43 @@
+/**
+ * 리비전 히스토리 — 앱의 버전 버튼을 누르면 보이는 변경 기록.
+ * 새 변경을 배포할 때마다 맨 앞에 항목을 추가한다 (맨 앞 항목의 version 이 앱 버전이 된다).
+ * agent 는 실제로 수정한 주체를 적는다. 목록에 없는 에이전트는 AGENTS 에 색과 함께 추가한다.
+ */
+
+export type AgentId = 'claude-code' | 'codex' | 'cursor' | 'gemini' | 'human';
+
+/** 색은 MapStone 팔레트에서 고른다 (tokens.css 의 --ma-agent-* 와 짝). */
+export const AGENTS: Record<AgentId, { label: string }> = {
+  'claude-code': { label: 'Claude Code' },
+  codex: { label: 'Codex' },
+  cursor: { label: 'Cursor' },
+  gemini: { label: 'Gemini' },
+  human: { label: '직접 수정' },
+};
+
+export interface Revision {
+  version: string;
+  date: string; // YYYY-MM-DD
+  agents: AgentId[];
+  title: string;
+  changes: string[];
+}
+
+export const REVISIONS: Revision[] = [
+  {
+    version: '1.0.0',
+    date: '2026-10-22',
+    agents: ['claude-code'],
+    title: '트립카드 첫 배포 — MyArchive 에서 독립한 여행 앱',
+    changes: [
+      '여행사 일정·상품 링크(또는 일정표 텍스트)로 제목·사진·일차별 일정이 담긴 여행 카드 생성',
+      '일정 · 체크리스트 · 기록 · 자료 탭, D-day 와 준비 진행률',
+      '국내·해외 기본 체크리스트, 누가 체크했는지 표시',
+      '여행 전·중·다녀온 후 단계별 기록 질문',
+      '목적지·일정마다 유튜브·블로그·지도·날씨 검색 링크, 자료 링크 저장',
+      '공유 링크로 로그인 없이 두 가족·멤버가 함께 수정, 모든 기기에 실시간 반영',
+    ],
+  },
+];
+
+export const APP_VERSION = REVISIONS[0].version;
