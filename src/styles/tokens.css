@@ -57,7 +57,9 @@
   --ma-phase-during-bg: var(--ms-color-status-success-bg);
   --ma-phase-after: var(--ma-type-prompt);
   --ma-phase-after-bg: var(--ma-type-prompt-bg);
-  --ma-trip-overlay: linear-gradient(180deg, rgb(22 54 93 / 35%) 0%, rgb(22 54 93 / 15%) 35%, rgb(22 54 93 / 88%) 100%);
+  /* 밝은 사진(눈·하늘) 위에서도 흰 글자가 AA 대비를 갖도록 아래쪽을 충분히 어둡게 */
+  --ma-trip-overlay: linear-gradient(180deg, rgb(22 54 93 / 45%) 0%, rgb(22 54 93 / 20%) 28%, rgb(22 54 93 / 70%) 55%, rgb(22 54 93 / 94%) 100%);
+  --ma-trip-text-shadow: 0 1px 8px rgb(22 54 93 / 60%);
   --ma-hero-btn: rgb(255 255 255 / 18%);
   --ma-hero-btn-hover: rgb(255 255 255 / 30%);
 

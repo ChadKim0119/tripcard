@@ -2087,6 +2087,11 @@ textarea:focus {
 .trip-hero-body {
   position: relative;
 }
+.trip-hero.has-cover .trip-hero-body h1,
+.trip-hero.has-cover .trip-hero-meta,
+.trip-hero.has-cover .trip-progress {
+  text-shadow: var(--ma-trip-text-shadow);
+}
 .trip-hero-bar {
   display: flex;
   align-items: center;
